@@ -1,0 +1,5 @@
+.primaryActions {
+    & button {
+        margin-right: 5px;
+    }
+}

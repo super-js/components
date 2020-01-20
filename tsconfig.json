@@ -1,0 +1,23 @@
+{
+   "compilerOptions"       : {
+      "target"                         : "esnext",
+      "module"                         : "esnext",
+      "outDir"                         : "./lib/",
+      "moduleResolution"               : "node",
+      "sourceMap"                      : true,
+      "jsx"                            : "react",
+      "declaration"                    : true,
+      //"allowJs"                        : true,
+      //"allowSyntheticDefaultImports"   : true,
+      //"noImplicitAny"                  : true,
+      "plugins"                        : [
+         {
+            "name": "typescript-plugin-css-modules",
+            "customMatcher": "\\.css$"
+         }
+      ]
+   },
+   "include": [
+      "components/**/*"
+   ]
+}
