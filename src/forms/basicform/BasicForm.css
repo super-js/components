@@ -1,0 +1,21 @@
+.form {
+
+    display: flex;
+    flex-direction: column;
+
+    &.fullHeight {
+        height: 100%;
+    }
+
+    & > .parameters {
+        flex-grow: 2;
+    }
+
+    & input:last-child {
+        margin-bottom: 0px !important;
+    }
+
+    & div.divider {
+        margin: 0px 0 10px 0;
+    }
+}

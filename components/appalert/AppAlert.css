@@ -1,5 +1,0 @@
-.appAlert {
-    & + .appAlert {
-        margin-top: 10px;
-    }
-}

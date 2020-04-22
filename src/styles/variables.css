@@ -1,0 +1,25 @@
+:root {
+
+
+
+    --fa-primary-color: #00901d;
+    --fa-secondary-color: #d4b106;
+    --fa-secondary-opacity: .8;
+
+    --error-color: #f5222d;
+    --error-background-color: rgba(245,34,45,.1);
+    --warning-color: #faad14;
+    --warning-background-color: rgba(250,173,20,.1);
+    --success-color: #52c41a;
+    --success-background-color: rgba(82,196,26,.1);
+    --link-color: rgb(145, 114, 0);
+    --link-color-hover: rgb(201, 166, 6);
+
+    --button-border-color: rgb(145, 114, 0);
+    --button-text-color: var(--link-color);
+
+    --primary-background--color: rgba(211,242,97);
+
+    --max-width: 1480px;
+
+}

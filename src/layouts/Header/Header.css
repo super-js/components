@@ -1,0 +1,36 @@
+.header {
+
+    height: 100%;
+    width: 100%;
+    max-width: var(--max-width);
+    margin: auto;
+
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+
+    & > .logoAndTitleAndItems {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: start;
+
+        & > span {
+            background: var(--primary-background-dark);
+            border: 1px solid #ddd;
+            display: block;
+            margin-right: 10px;
+        }
+
+        & > h4 {
+            display: block;
+            margin: 0;
+        }
+
+        & > .menu {
+            margin-left: 10px;
+        }
+    }
+
+}

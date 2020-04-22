@@ -1,0 +1,29 @@
+li.menuItem {
+    border-bottom: 1px solid transparent !important;
+
+    &:global(.ant-menu-item-selected), &:global(.ant-menu-item-active) {
+        border-bottom: 1px solid color(var(--link-color) blackness(40%)) !important;
+        background: inherit !important;
+    }
+
+    & > .content {
+
+        display: flex !important;
+        flex-direction: row;
+        justify-content: center;
+        align-items: center;
+
+        & > svg, & > span {
+            color : color(var(--link-color) blackness(60%)) !important;
+        }
+    }
+
+
+
+    &.dense {
+        height: 30px;
+        line-height: 30px;
+        margin: 5px 0 !important;
+    }
+
+}

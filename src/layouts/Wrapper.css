@@ -1,0 +1,55 @@
+body, html {
+    height: 100%;
+}
+
+body {
+    & > div:first-child {
+        height: 100%;
+    }
+}
+
+.wrapper {
+
+    & > .wrapperHeader {
+        height: 48px;
+        line-height: 45px;
+        background: #fff !important;
+    }
+
+    & > .wrapperContent {
+
+        overflow-y: auto;
+
+        height: calc(100% - 25px);
+
+        & > .wrapperContentBody {
+            height: 100%;
+            padding: 10px 10px;
+
+            width: 100%;
+            max-width: var(--max-width);
+            margin: auto;
+        }
+
+        &.hasFooter {
+            margin-bottom: 25px;
+        }
+    }
+
+
+
+    & > .wrapperFooter {
+
+        & > div {
+            max-width: var(--max-width);
+            margin: auto;
+        }
+
+        position   : fixed;
+        bottom     : 0;
+        width      : 100%;
+        height     : 25px;
+        text-align : center;
+        padding    : 2px 0px;
+    }
+}

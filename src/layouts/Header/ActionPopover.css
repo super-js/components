@@ -1,0 +1,44 @@
+.popOverWrapper {
+    & :global(.ant-popover-inner-content) {
+        padding-top: 0 !important;
+    }
+}
+
+.popOver {
+
+    max-width:400px;
+    width: 400px;
+
+    & .items {
+
+        display: flex;
+        flex-direction: row;
+        justify-content: space-around;
+        align-items: center;
+        flex-wrap: wrap;
+
+        & .item {
+
+            margin: 10px 0;
+
+            & > i {
+                display: block;
+            }
+            & > span {
+                display: block;
+            }
+
+        }
+    }
+
+    & div[role="separator"] {
+        margin: 10px 0;
+    }
+
+    & .actions {
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-end;
+        align-items: center;
+    }
+}

@@ -1,9 +1,0 @@
-.form {
-    & input:last-child {
-        margin-bottom: 0px !important;
-    }
-
-    & div.divider {
-        margin: 0px 0 10px 0;
-    }
-}

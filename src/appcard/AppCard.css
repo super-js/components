@@ -1,0 +1,87 @@
+.appCard {
+
+    width: 100%;
+
+    &:not(.fullHeight) {
+        margin-bottom: 10px !important;
+    }
+
+
+    & > :global(.ant-card-head) {
+        background: var(--primary-background--color);
+    }
+
+    &.small {
+        & > :global(.ant-card-body) {
+            padding: 8px !important;
+        }
+
+    }
+
+    &.appCardError > :global(.ant-card-head) {
+        background: var(--error-background-color)
+    }
+
+    &.appCardSuccess > :global(.ant-card-head) {
+        background: var(--success-background-color)
+    }
+
+    &.appCardWarning > :global(.ant-card-head) {
+        background: var(--warning-background-color)
+    }
+
+    &.fullHeight {
+        height: 100%;
+
+        & :global(.ant-card-body) {
+            height: calc(100% - 56px);
+        }
+    }
+
+    & .appCardTitle {
+
+        width: 100%;
+        display: flex;
+        flex-direction: row;
+        justify-content: flex-start;
+        align-items: center;
+
+        & > svg {
+            cursor: pointer;
+        }
+
+        & > h4 {
+
+            margin-bottom: 0;
+
+            &.error {
+                color: var(--error-color)
+            }
+
+            &.success {
+                color: var(--success-color)
+            }
+
+            &.warning {
+                color: var(--warning-color)
+            }
+
+        }
+    }
+
+    & .appCardExtra {
+
+        display: flex;
+        flex-direction: row;
+        justify-content: left;
+        align-items: center;
+
+        & > span:first-child {
+            margin-right: 5px;
+        }
+
+        & svg {
+            font-size: 24px;
+        }
+    }
+}

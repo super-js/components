@@ -1,0 +1,39 @@
+:global(.ant-btn-link), :global(.ant-btn-ghost) {
+    color : color(var(--button-text-color) blackness(50%)) !important;
+
+    &:hover, &.hover {
+        color : color(var(--button-text-color) blackness(30%)) !important;
+    }
+}
+
+:global(.ant-layout) {
+    background: #fafafa !important;
+}
+
+:global(.ant-pagination-item-active), :global(.ant-btn-ghost) {
+    border-color: var(--primary-border-color) !important;
+}
+
+:global(.ant-anchor-ink-ball) {
+    border: 2px solid var(--fa-primary-color) !important;
+}
+
+:global(.ant-anchor-ink::before) {
+    background-color: var(--fa-secondary-color) !important;
+}
+
+:global(.ant-layout) {
+    height : 100% !important;
+
+    & > :global(.ant-row) {
+        height: 100% !important;
+
+        & > :global(.ant-col) {
+            height: 100% !important;
+        }
+    }
+}
+
+:global(.ant-divider-horizontal) {
+    margin: 10px 0 !important;
+}

@@ -1,0 +1,20 @@
+.divider {
+    margin: 10px 0;
+}
+
+.pageWrapper {
+    display: flex;
+    flex-direction: column;
+
+    height: 100%;
+
+    & .breadCrumbItemContent {
+        & div {
+            display: inline-block !important;
+        }
+    }
+
+    & > .pageWrapperContent {
+        flex-grow: 1;
+    }
+}

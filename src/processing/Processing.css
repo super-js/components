@@ -1,0 +1,19 @@
+.processing {
+    display: flex;
+    flex-direction: row;
+    justify-content: start;
+    align-items: center;
+
+    & > i {
+        display: block;
+        margin-right: 10px;
+    }
+
+    &.regularSize {
+        font-size: 1.2rem;
+    }
+
+    &.largeSize {
+        font-size: 1.8rem;
+    }
+}

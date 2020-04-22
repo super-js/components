@@ -1,0 +1,26 @@
+.singleForm {
+    height: 100%;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    align-items: center;
+
+    margin: auto;
+    width: 800px;
+    max-width: 800px;
+
+    &.superNarrow {
+        width: 450px;
+        max-width: 450px;
+    }
+
+    &.narrow {
+        width: 600px;
+        max-width: 600px;
+    }
+
+    &.wide {
+        width: 1024px;
+        max-width: 1024px;
+    }
+}

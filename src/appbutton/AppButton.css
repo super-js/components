@@ -1,0 +1,59 @@
+.popConfirm {
+    width: 380px !important;
+
+    & :global(.ant-popover-message) {
+        display: flex !important;
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: flex-start !important;
+    }
+}
+
+.button {
+
+    color: var(--button-text-color);
+    border-color: var(--button-border-color);
+
+    &:disabled, & > button {
+        background: initial !important;
+        color: color(var(--button-text-color) darkness(+20%)) !important;
+        border-color: color(var(--button-border-color) darkness(+20%)) !important;
+    }
+
+    &:enabled:not(.danger) {
+        &:active, &.active {
+            border-color: color(var(--button-border-color) darkness(+2%)) !important;
+        }
+
+        &:hover, &.hover {
+            border-color: color(var(--button-border-color) lightness(+10%)) !important;
+            color:  color(var(--button-text-color) lightness(+10%)) !important;
+        }
+    }
+
+    &.link, &.link > button {
+        border: 0 !important;
+    }
+
+    &.danger {
+        color: var(--error-color);
+        border-color: var(--error-color);
+
+        &:enabled {
+            &:active, &.active {
+                border-color: color(var(--error-color) lightness(+20%));
+            }
+
+            &:hover, &.hover {
+                border-color: color(var(--error-color) lightness(+20%));
+                color:  color(var(--error-color) lightness(+20%));
+            }
+        }
+
+        &:disabled {
+            background: initial !important;
+            color: color(var(--error-color) lightness(+35%)) !important;
+            border-color: color(var(--error-color) lightness(+35%)) !important;
+        }
+    }
+}
