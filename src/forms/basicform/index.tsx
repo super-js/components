@@ -13,7 +13,7 @@ import Parameters, {
     OnParametersChangeInfo,
     TParameterDefinition
 } from "../parameters";
-import {bulkValidate} from "../../../handlers/parameters/validator";
+import {bulkValidate} from "../../handlers/parameters/validator";
 
 import InputTypes from '../../input';
 import {IConfirmationResult, TOnConfirmation} from "../../appbutton";

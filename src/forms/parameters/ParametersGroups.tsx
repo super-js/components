@@ -6,7 +6,7 @@ import ParametersGrid, {IRow} from "./ParametersGrid";
 import {IndexedParameters} from "./index";
 
 import ParametersGroupCss from "./ParametersGroups.css";
-import {ValidationResult, ValidationStatus} from "../../../handlers/parameters/validator";
+import {ValidationResult, ValidationStatus} from "../../handlers/parameters/validator";
 import {IParameterComponent} from "./Parameter";
 import Icon from "../../icon";
 

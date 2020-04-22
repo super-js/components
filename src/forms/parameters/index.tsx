@@ -5,7 +5,7 @@ import {cloneDeep} from "lodash";
 import ParametersGroups, {IGroup} from "./ParametersGroups";
 import ParametersGrid from "./ParametersGrid";
 
-import {ValidationResult, ValidationStatus} from "../../../handlers/parameters/validator";
+import {ValidationResult, ValidationStatus} from "../../handlers/parameters/validator";
 import {IParameterComponent} from "./Parameter";
 
 export enum OnParametersChangeEventCode {

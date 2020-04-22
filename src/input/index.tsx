@@ -1,5 +1,5 @@
 import * as React from "react";
-import {IParameterType, parameterTypes, IParameter, validator} from "../../handlers/parameters";
+import {IParameterType, parameterTypes, IParameter, validator} from "../handlers/parameters";
 
 import {Typography} from "antd";
 
@@ -13,7 +13,7 @@ import InputRate        from './types/Rate';
 import DateTime         from './types/DateTime';
 import File             from './types/file';
 
-import {ValidationResult, ValidationStatus} from "../../handlers/parameters/validator";
+import {ValidationResult, ValidationStatus} from "../handlers/parameters/validator";
 import Icon from "../icon";
 
 export enum EInputTypes {

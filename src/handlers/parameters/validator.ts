@@ -1,5 +1,4 @@
 import {IParameter, IParameterType} from "./index";
-import {IParameterComponent} from "../../components/forms/parameters/Parameter";
 
 export enum ValidationStatus {
     success = "success",

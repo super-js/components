@@ -3,7 +3,7 @@ import * as React                           from "react";
 
 import ParameterCss       from "./ParameterCss.css";
 import {ParametersContext} from "./index";
-import {ValidationResult} from "../../../handlers/parameters/validator";
+import {ValidationResult} from "../../handlers/parameters/validator";
 
 export type OnParameterValidationChange = (parameterCode: string, validationResult: ValidationResult) => void;
 
