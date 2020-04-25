@@ -1,7 +1,7 @@
 import * as React from "react";
 
 import ActionsCss from "./Actions.css";
-import AppButton, {AppButtonProps} from "../../appbutton";
+import {AppButtonProps, AppButton} from "../../appbutton";
 
 export interface IAction extends Omit<AppButtonProps, 'type' | 'loading' | 'disabled'> {
     code            : string;

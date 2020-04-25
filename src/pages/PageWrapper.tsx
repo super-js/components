@@ -23,11 +23,13 @@ export interface PageWrapperState {
 
 export interface IPageWrapperContext {
     onContextDataChange: OnContextDataChange;
+    currentSiteMapCodes: string[];
     data: {[k: string]: any};
 }
 
 export interface PageWrapperProps {
     history: History;
+    currentSiteMapCodes: string[];
     children?: JSX.Element | JSX.Element[];
 }
 
@@ -49,7 +51,6 @@ class PageWrapper extends React.Component<PageWrapperProps, PageWrapperState> {
         if(data) contextState['data'] = data;
 
         if(Object.keys(contextState).length > 0) this.setState(contextState)
-
 
     };
 
@@ -80,6 +81,7 @@ class PageWrapper extends React.Component<PageWrapperProps, PageWrapperState> {
                 <div className={PageWrapperCss.pageWrapperContent}>
                     <PageWrapperContext.Provider value={{
                         onContextDataChange: this.onContextDataChange,
+                        currentSiteMapCodes: this.props.currentSiteMapCodes,
                         data
                     }}>
                         {this.props.children}

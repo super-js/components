@@ -1,2 +1,3 @@
-export {default as HorizontalMenu, IHorizontalMenuProps}   from './HorizontalMenu';
-export {default as MenuItem, IMenuItem} from "./MenuItem";
+export * from './HorizontalMenu';
+export * from "./MenuItem";
+export * from "./VerticalMenu";

@@ -4,7 +4,7 @@ import cx from "classnames";
 import {Divider, Form} from 'antd';
 
 import BasicFormCss from './BasicForm.css';
-import AppCard from "../../appcard";
+import {AppCard} from "../../appcard";
 import AppAlert from '../../appalert';
 import Actions, {IAction} from "../actions";
 import Parameters, {
@@ -60,13 +60,14 @@ class BasicForm extends React.Component<BasicFormProps, BasicFormState> {
     };
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.state.submitting !== nextState.submitting
+        return (this.state.submitting !== nextState.submitting
         || this.state.hasErrors !== nextState.hasErrors
         || this.state.updatedParametersStates !== nextState.updatedParametersStates
         || this.state.submitting !== nextState.submitting
         || this.state.errors !== nextState.errors
         || this.state.success !== nextState.success
-        || this.props.title !== nextProps.title
+        || this.props.title !== nextProps.title)
+        && !this._unMounted
     }
 
     componentWillUnmount() {
@@ -140,10 +141,12 @@ class BasicForm extends React.Component<BasicFormProps, BasicFormState> {
     };
 
     onParametersChange = (parametersInfo: OnParametersChangeInfo) => {
-        this.setState({
-            indexedParameters   : parametersInfo.indexedParameters,
-            hasErrors           : parametersInfo.hasErrors
-        })
+        if(!this._unMounted) {
+            this.setState({
+                indexedParameters   : parametersInfo.indexedParameters,
+                hasErrors           : parametersInfo.hasErrors
+            })
+        }
     };
 
     render() {
@@ -167,7 +170,7 @@ class BasicForm extends React.Component<BasicFormProps, BasicFormState> {
                     [BasicFormCss.fullHeight] : fullHeight
                 })} onSubmitCapture={this.onSubmit}>
                     {Array.isArray(errors) && errors.length > 0 ? (
-                        errors.map(error => <AppAlert message={error} type="error" />)
+                        errors.map(error => <AppAlert key={error} message={error} type="error" />)
                     ) : null}
                     {success ? (
                         <AppAlert message={success} type="success" />

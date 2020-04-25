@@ -14,7 +14,7 @@ import DateTime         from './types/DateTime';
 import File             from './types/file';
 
 import {ValidationResult, ValidationStatus} from "../handlers/parameters/validator";
-import Icon from "../icon";
+import {Icon} from "../icon";
 
 export enum EInputTypes {
     text                    = "text",
@@ -103,6 +103,10 @@ const InputHOC = (parameterType: IParameterType, Component: React.FunctionCompon
                 )
         }
 
+        componentWillUnmount() {
+            clearTimeout(this.validationTimeout);
+        }
+
         componentDidUpdate(prevProps, prevState) {
 
             let newState = {};
@@ -152,6 +156,7 @@ const InputHOC = (parameterType: IParameterType, Component: React.FunctionCompon
                 this.setState({
                     validationResult
                 });
+
             }, 500);
 
         };

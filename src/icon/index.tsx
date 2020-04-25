@@ -2,6 +2,7 @@ import * as React from "react";
 import cx from "classnames";
 import {fad} from '@fortawesome/pro-duotone-svg-icons';
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+
 import {IconName, library, SizeProp} from "@fortawesome/fontawesome-svg-core";
 
 import IconCss from "./Icon.css";
@@ -17,7 +18,7 @@ export interface IconProps {
     className?: string
 }
 
-const Icon = (props: IconProps) => {
+export const Icon = (props: IconProps) => {
     return (
         <FontAwesomeIcon
             className={cx(IconCss.icon, props.className, {
@@ -31,6 +32,4 @@ const Icon = (props: IconProps) => {
     )
 };
 
-export {IconName, SizeProp};
-
-export default Icon;
+export type {IconName, SizeProp};

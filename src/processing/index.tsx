@@ -2,8 +2,8 @@ import * as React   from "react";
 import cx           from "classnames";
 import {Typography}       from "antd";
 
-import Icon from "../icon";
-import AppCard      from "../appcard";
+import {Icon} from "../icon";
+import {AppCard}      from "../appcard";
 
 import ProcessingCss from "./Processing.css";
 
@@ -40,4 +40,4 @@ Processing.WithAppCard = (props: ProcessingProps) => (
     </AppCard>
 );
 
-export default Processing;
+export {Processing};

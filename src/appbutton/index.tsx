@@ -2,8 +2,8 @@ import * as React from "react";
 import cx from "classnames";
 import {Button, Popconfirm}                       from 'antd';
 
-import Icon, {IconName} from "../icon";
-import Processing from "../processing";
+import {Icon, IconName} from "../icon";
+import {Processing} from "../processing";
 
 import AppButtonCss from "./AppButton.css";
 
@@ -31,7 +31,7 @@ export interface AppButtonConfirmationState extends IConfirmationResult {
     confirming?: boolean;
 }
 
-export default function AppButton(props: AppButtonProps) {
+export function AppButton(props: AppButtonProps) {
 
     const hasConfirmation = typeof props.onConfirmation === "function";
 

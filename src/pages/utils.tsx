@@ -83,7 +83,6 @@ export interface IPageDataLoader {
 }
 const usePageDataLoader = (options: IPageDataLoader) => {
 
-
     const {
         location, loader, loadOnlyOnce, reloadPathname
     } = options;
@@ -113,6 +112,11 @@ const usePageDataLoader = (options: IPageDataLoader) => {
         pageData, loadingPageData
     }
 };
+
+export const useCurrentSiteMapCode = () => {
+    const {currentSiteMapCodes} = React.useContext(PageWrapperContext);
+    return currentSiteMapCodes;
+}
 
 export {
     setDefaultBreadcrumbs, getBreadcrumbsSetter, usePageDataLoader

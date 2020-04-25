@@ -1,12 +1,12 @@
 import * as React               from "react";
-import { Avatar, Typography, Button, Icon, Dropdown }   from "antd";
+import { Avatar, Typography, Button, Dropdown }   from "antd";
 
 import HeaderCss from './Header.css';
 
 import ActionPopover, {ActionPopoverProps} from "./ActionPopover";
 
-import HorizontalMenu from "../../menus/HorizontalMenu";
-import {IMenuItem} from "../../menus/MenuItem";
+import {HorizontalMenu} from "../../menus";
+import {IMenuItem} from "../../menus";
 
 import {History} from "history";
 
@@ -17,9 +17,10 @@ export interface IHeaderProps {
     menuItems?  : IMenuItem[],
     history?    : History;
     actionPopoverProps? :ActionPopoverProps;
+    currentMenuItemCodes: string[];
 }
 
-export default function Index(props: IHeaderProps) {
+export default function Header(props: IHeaderProps) {
 
     return (
         <div className={HeaderCss.header}>
@@ -35,6 +36,7 @@ export default function Index(props: IHeaderProps) {
                         <HorizontalMenu
                             menuItems={props.menuItems}
                             history={props.history}
+                            currentMenuItemCodes={props.currentMenuItemCodes}
                         />
                     </div>
                 ) : null}

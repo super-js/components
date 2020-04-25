@@ -23,6 +23,10 @@ export interface BreadcrumbProps {
     history         : History;
 }
 
+export interface IBreadcrumbs {
+
+}
+
 
 const Breadcrumb = (props: BreadcrumbProps) => {
 

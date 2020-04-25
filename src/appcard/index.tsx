@@ -4,7 +4,7 @@ import cx                           from 'classnames';
 import {IconName} from "@fortawesome/fontawesome-svg-core";
 import {Card, Typography}                         from 'antd';
 import appCardCss from './AppCard.css';
-import Icon from "../icon";
+import {Icon} from "../icon";
 
 
 export enum AppCardType {
@@ -22,7 +22,7 @@ export interface AppCardProps extends AppCardTitleProps, AppCardExtraProps {
 
 interface AppCardTitleProps {
     title?          : string;
-    type?           : AppCardType;
+    type?           : keyof typeof AppCardType | AppCardType;
     onExit?         : () => void;
 }
 
@@ -55,7 +55,7 @@ const AppCardExtra = (props: AppCardExtraProps): JSX.Element => (
     </div>
 );
 
-const AppCard = (props: AppCardProps): JSX.Element => {
+export const AppCard = (props: AppCardProps): JSX.Element => {
 
     const {title, description, iconName, type, children, small, fullHeight, ...otherProps} = props;
 
@@ -75,5 +75,3 @@ const AppCard = (props: AppCardProps): JSX.Element => {
         </Card>
     )
 };
-
-export default AppCard;

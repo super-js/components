@@ -4,7 +4,7 @@ import {Menu, Typography} from "antd";
 import {History} from "history";
 import {IconName} from "@fortawesome/fontawesome-svg-core";
 
-import Icon from "../icon";
+import {Icon} from "../icon";
 
 import MenuItemCss from './MenuItem.css';
 
@@ -15,7 +15,6 @@ export interface IMenuItem {
     children?   : IMenuItem[],
     onClick?    : (menuItem: IMenuItem) => void;
     to?         : string;
-    isSelectedByDefault?: boolean;
 }
 
 export interface MenuItemProps {
@@ -47,9 +46,6 @@ export const getMenuItem = (props: MenuItemProps) => {
     )
 };
 
-const MenuItem = (props: MenuItemProps) => {
+export const MenuItem = (props: MenuItemProps) => {
     return getMenuItem(props);
 };
-
-export default MenuItem;
-

@@ -3,12 +3,11 @@ import {History} from "history";
 import {Button, Table, Divider, Select, Typography} from "antd";
 import {IconName} from "@fortawesome/fontawesome-svg-core";
 
-import Icon from "../icon";
-import AppCard from "../appcard";
+import {AppCard} from "../appcard";
 
 import AppTableCss from "./AppTable.css";
 import {getNestedObjectValueByArray} from "../utils";
-import AppButton from "../appbutton";
+import {AppButton} from "../appbutton";
 
 interface IDataRecordBase {
     key: any;
@@ -90,7 +89,7 @@ const AppTableConfig = (props: AppTableConfigProps) => (
 );
 
 
-export default class AppTable<R extends {children?: R[]}> extends React.Component<TablePageProps<R>, TablePageState<R>>{
+export class AppTable<R extends {children?: R[]}> extends React.Component<TablePageProps<R>, TablePageState<R>>{
 
     _isDataFunction = () => typeof this.props.data === "function";
 
@@ -260,4 +259,4 @@ export default class AppTable<R extends {children?: R[]}> extends React.Componen
         )
     }
 
-};
+}

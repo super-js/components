@@ -2,7 +2,7 @@ import * as React from "react";
 import { Upload, Typography } from 'antd';
 
 import {InputComponentProps} from "../index";
-import Icon from "../../icon";
+import {Icon} from "../../icon";
 
 import FileCss from "./File.css";
 

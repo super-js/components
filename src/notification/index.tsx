@@ -2,7 +2,7 @@ import * as React from "react";
 import cx from "classnames";
 import {notification, Typography} from "antd";
 
-import Icon, {IconName} from "../icon";
+import {Icon, IconName} from "../icon";
 
 import NotificationCss from "./Notification.css";
 

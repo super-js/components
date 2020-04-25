@@ -4,29 +4,22 @@ import {History}    from "history";
 
 import HorizontalMenuCss from './HorizontalMenu.css';
 import { IMenuItem, getMenuItem} from "./MenuItem";
-import Icon from "../icon";
-
+import {Icon} from "../icon";
 
 export interface IHorizontalMenuProps {
     menuItems   : IMenuItem[],
-    history?    : History
+    history?    : History;
+    currentMenuItemCodes: string[];
 }
 
-export default function HorizontalMenu(props: IHorizontalMenuProps) {
+export function HorizontalMenu(props: IHorizontalMenuProps) {
 
-    const {menuItems, history} = props;
-
-    const selectedByDefault = menuItems.findIndex(menuItem => menuItem.isSelectedByDefault);
-
-    const [selectedMenuEntry, setSelectedMenuEntry] = React.useState(
-        selectedByDefault > -1 ? menuItems[selectedByDefault].code : (menuItems.length > 0 ? menuItems[0].code : "")
-    );
+    const {menuItems, history, currentMenuItemCodes} = props;
 
     return (
         <Menu
             className={HorizontalMenuCss.horizontalMenu}
-            selectedKeys={[selectedMenuEntry]}
-            onClick={ev => setSelectedMenuEntry(ev.key)}
+            selectedKeys={currentMenuItemCodes}
             mode="horizontal"
         >
             {menuItems.map(menuItem => Array.isArray(menuItem.children) && menuItem.children.length > 0 ? (

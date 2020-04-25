@@ -3,7 +3,7 @@ import {Button, Popover, Divider} from "antd";
 import {IconName} from "@fortawesome/fontawesome-svg-core";
 import {History} from "history";
 
-import Icon from "../../icon";
+import {Icon} from "../../icon";
 
 import ActionPopoverCss from './ActionPopover.css';
 
