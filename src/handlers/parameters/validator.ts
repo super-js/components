@@ -7,7 +7,7 @@ export enum ValidationStatus {
 }
 
 export interface ValidationResult {
-    validateStatus  : ValidationStatus,
+    validateStatus  : ValidationStatus | "success" | "error" | "",
     help            : string[]
 }
 

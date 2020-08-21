@@ -1,14 +1,17 @@
 import * as React from "react";
-import cx                                                               from "classnames";
+import cx from "classnames";
 import { Input } from "antd";
 
 import TextCss from "./Text.css";
+
 import {InputComponentProps} from "../index";
+import {Icon} from "../../icon";
 
 export interface TextProps extends InputComponentProps {
     isPassword?         : boolean;
     isEmail?            : boolean;
     isTextArea?         : boolean;
+    isPhone?            : boolean;
 }
 
 const Text = (props: TextProps) => {
@@ -17,12 +20,14 @@ const Text = (props: TextProps) => {
     let InputComponent, addOnBefore;
 
     if(props.isPassword) {
-        addOnBefore             = "#";
+        addOnBefore             = <Icon iconName="key-skeleton" />;
         InputComponent          = Input.Password;
     } else if(props.isTextArea) {
         InputComponent          = Input.TextArea;
     } else if(props.isEmail) {
-        addOnBefore             = "@";
+        addOnBefore             = <Icon iconName="at" />;
+    } else if(props.isPhone) {
+        addOnBefore             = <Icon iconName="phone" />;
     }
 
     if(!InputComponent) InputComponent = Input;
@@ -40,8 +45,9 @@ const Text = (props: TextProps) => {
     />
 };
 
-Text.Password 	= props => <Text isPassword addonBefore="#" {...props}/>;
-Text.Email		= props => <Text isEmail addonBefore="@" {...props}/>;
+Text.Password 	= props => <Text isPassword{...props}/>;
+Text.Email		= props => <Text isEmail {...props}/>;
 Text.TextArea   = props => <Text isTextArea {...props}/>;
+Text.Phone		= props => <Text isPhone {...props}/>;
 
 export default Text;

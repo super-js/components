@@ -7,21 +7,21 @@ import {Icon} from "../icon";
 
 import VerticalMenuCss from "./VerticalMenu.css";
 import {IMenuItem} from "./MenuItem";
-import {useCallback} from "react";
+import {resolveToAndLabel} from "../pages";
 
 export interface VerticalMenuProps {
     menuItems: IMenuItem[];
     history: History;
     currentMenuItemCodes: string[];
+    resolverData?: any;
 }
 
 export interface VerticalMenuItemsProps {
     onLinkClick: (e: React.MouseEvent<HTMLElement>, link: { title: React.ReactNode; href: string; }) => void;
     menuItems: IMenuItem[];
     anchorRef: React.Ref<any>;
+    resolverData?: any;
 }
-
-const resolveToAndLabel = input => typeof input === "function" ? input() : input;
 
 const VerticalMenuItems = React.memo(function(props: VerticalMenuItemsProps) {
 
@@ -31,11 +31,11 @@ const VerticalMenuItems = React.memo(function(props: VerticalMenuItemsProps) {
                 key={menuItem.code}
                 title={(
                     <div className={VerticalMenuCss.anchorLinkContent}>
-                        {resolveToAndLabel(menuItem.label)}
+                        {resolveToAndLabel(menuItem.label, props.resolverData)}
                         {menuItem.iconName ? <Icon iconName={menuItem.iconName} /> : null}
                     </div>
                 )}
-                href={resolveToAndLabel(menuItem.to)}
+                href={resolveToAndLabel(menuItem.to, props.resolverData)}
             >
                 {menuItem.children.length > 0 ? _renderLinks(menuItem.children) : null}
             </Anchor.Link>
@@ -57,7 +57,7 @@ export function VerticalMenu(props: VerticalMenuProps) {
         let _indexedMenuItems = {};
 
         const _processMenuItems = _menuItems => _menuItems.forEach(menuItem => {
-            _indexedMenuItems[menuItem.code] = resolveToAndLabel(menuItem.to);
+            _indexedMenuItems[menuItem.code] = resolveToAndLabel(menuItem.to, props.resolverData);
             if(menuItem.children.length > 0) _processMenuItems(menuItem.children);
         });
 
@@ -75,7 +75,7 @@ export function VerticalMenu(props: VerticalMenuProps) {
     }, [currentMenuItemCodes]);
 
 
-    const onLinkClick = useCallback((ev, link) => {
+    const onLinkClick = React.useCallback((ev, link) => {
         ev.preventDefault();
         if(history.location.pathname !== link.href) history.push(link.href);
     }, []);
@@ -86,6 +86,7 @@ export function VerticalMenu(props: VerticalMenuProps) {
                 anchorRef={anchorRef}
                 menuItems={menuItems}
                 onLinkClick={onLinkClick}
+                resolverData={props.resolverData}
             />
         </AppCard>
     )

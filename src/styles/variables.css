@@ -12,13 +12,14 @@
     --warning-background-color: rgba(250,173,20,.1);
     --success-color: #52c41a;
     --success-background-color: rgba(82,196,26,.1);
+
     --link-color: rgb(145, 114, 0);
     --link-color-hover: rgb(201, 166, 6);
 
-    --button-border-color: rgb(145, 114, 0);
+    --button-border-color: var(--link-color);
     --button-text-color: var(--link-color);
 
-    --primary-background--color: rgba(211,242,97);
+    --primary-background--color: rgb(244, 255, 184);
 
     --max-width: 1480px;
 

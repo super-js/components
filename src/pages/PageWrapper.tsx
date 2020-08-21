@@ -23,6 +23,8 @@ export interface PageWrapperState {
 
 export interface IPageWrapperContext {
     onContextDataChange: OnContextDataChange;
+    addBreadcrumbItems: (breadcrumbItems: IBreadcrumbItem[]) => void;
+    removeBreadcrumbItems: (breadcrumbItems: IBreadcrumbItem[]) => void;
     currentSiteMapCodes: string[];
     data: {[k: string]: any};
 }
@@ -54,6 +56,21 @@ class PageWrapper extends React.Component<PageWrapperProps, PageWrapperState> {
 
     };
 
+    addBreadcrumbItems = (breadcrumbItems: IBreadcrumbItem[]) => {
+        this.setState(state => ({
+            breadcrumbItems: [...state.breadcrumbItems, ...breadcrumbItems]
+        }));
+    }
+
+    removeBreadcrumbItems = (breadcrumbItems: IBreadcrumbItem[]) => {
+        this.setState(state => ({
+            breadcrumbItems: state.breadcrumbItems
+                .filter(existingBreadcrumbItem => !breadcrumbItems.some(({label, to}) =>
+                    existingBreadcrumbItem.to === to && label === existingBreadcrumbItem.label
+                ))
+        }));
+    }
+
     onBreadcrumbClick = to => {
         this.props.history.push(to);
     };
@@ -82,7 +99,9 @@ class PageWrapper extends React.Component<PageWrapperProps, PageWrapperState> {
                     <PageWrapperContext.Provider value={{
                         onContextDataChange: this.onContextDataChange,
                         currentSiteMapCodes: this.props.currentSiteMapCodes,
-                        data
+                        data,
+                        addBreadcrumbItems: this.addBreadcrumbItems,
+                        removeBreadcrumbItems: this.removeBreadcrumbItems
                     }}>
                         {this.props.children}
                     </PageWrapperContext.Provider>

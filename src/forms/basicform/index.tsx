@@ -121,7 +121,7 @@ class BasicForm extends React.Component<BasicFormProps, BasicFormState> {
             } finally {
 
                 if(!this._unMounted) {
-                    let afterSubmitState = {submitting : false, errors, success};
+                    let afterSubmitState = {submitting : false, errors, success: typeof success === "string" ? success : ""};
 
                     if(this.props.clearValuesAfterSubmit
                         && errors.length === 0) {

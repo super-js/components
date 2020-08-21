@@ -9,15 +9,15 @@ import AppTableCss from "./AppTable.css";
 import {getNestedObjectValueByArray} from "../utils";
 import {AppButton} from "../appbutton";
 
-interface IDataRecordBase {
-    key: any;
-}
+// interface IDataRecordBase {
+//     key: any;
+// }
 
-type TDataRecordsState<R> = R & IDataRecordBase;
-type TDataRecords<R> = R[];
-type TData<R> = TDataRecords<R> | GetData<R>;
+//type TDataRecordsState<R> = R & IDataRecordBase;
+//type TDataRecords<R> = R[];
+//type TData<R> = TDataRecords<R> | GetData<R>;
 
-export type GetData<R> = () => Promise<TDataRecords<R>>;
+//export type GetData<R> = () => Promise<TDataRecords<R>>;
 
 type TRenderColumnItem<R> =(text: any, record: R, index: number) => React.ReactNode;
 
@@ -39,7 +39,7 @@ export interface ITableAction {
 
 export interface TablePageProps<R> {
     columns: IColumn<R>[];
-    data?:TData<R>;
+    data?:R[];
     onError?: (error: Error) => void;
     keyPropertyName: string;
     history?: History;
@@ -49,7 +49,7 @@ export interface TablePageProps<R> {
 
 export interface TablePageState<R> {
     loading: boolean;
-    data:TDataRecordsState<R>[];
+    data:R[];
     hasError?: boolean;
     pageSize: number;
 }
@@ -66,7 +66,10 @@ export interface AppTableConfigProps {
 function getColumnRenderer<R>(column: IColumn<R>, options: IGetColumnRendererOptions = {}): TRenderColumnItem<R> {
     if(typeof column.linkTo === "function" && options.history) {
         return (text, record, index) => (
-            <a onClick={() => options.history.push(column.linkTo(record))}>
+            <a onClick={() => options.history.push({
+                pathname: column.linkTo(record),
+                state: record
+            })}>
                 {text}
             </a>
         )
@@ -89,33 +92,23 @@ const AppTableConfig = (props: AppTableConfigProps) => (
 );
 
 
-export class AppTable<R extends {children?: R[]}> extends React.Component<TablePageProps<R>, TablePageState<R>>{
+export class AppTable<R extends object = any[]> extends React.Component<TablePageProps<R>, TablePageState<R>>{
 
-    _isDataFunction = () => typeof this.props.data === "function";
-
-    _transformData = (data: TDataRecords<R>): TDataRecordsState<R>[] => {
-        return data.map(dataRecord => ({
-            key: dataRecord[this.props.keyPropertyName],
-            ...dataRecord,
-            ...(Array.isArray(dataRecord.children) && dataRecord.children.length > 0 ?
-                {children: this._transformData(dataRecord.children)} : {})
-        }))
-    };
+    // _transformData = (data: any): TDataRecordsState<R>[] => {
+    //     return data.map(dataRecord => ({
+    //         key: dataRecord[this.props.keyPropertyName],
+    //         ...dataRecord,
+    //         ...(Array.isArray(dataRecord.children) && dataRecord.children.length > 0 ?
+    //             {children: this._transformData(dataRecord.children)} : {})
+    //     }))
+    // };
 
     state = {
-        loading     : this._isDataFunction() || !this.props.data || this.props.loading,
-        data        : this._isDataFunction() ? [] : Array.isArray(this.props.data) ?
-            this._transformData(this.props.data) : null,
+        loading     : this.props.loading,
+        data        : Array.isArray(this.props.data) ? this.props.data : [],
         hasError    : false,
         pageSize    : 50
     };
-
-
-    componentDidMount() {
-        if(this._isDataFunction()) {
-            this._getData();
-        }
-    }
 
     componentDidUpdate(prevProps, prevState) {
 
@@ -123,7 +116,7 @@ export class AppTable<R extends {children?: R[]}> extends React.Component<TableP
 
         if(Array.isArray(this.props.data) && this.props.data !== prevProps.data) {
             nextState = {
-                data : this._transformData(this.props.data)
+                data : this.props.data
             };
         }
 
@@ -138,9 +131,6 @@ export class AppTable<R extends {children?: R[]}> extends React.Component<TableP
     ///pagination, filters, sorter, extra
     onTableChange = (pagination, filters, sorting, extra) => {
 
-        console.log(pagination);
-        console.log(sorting);
-
         let {order, field} = sorting;
 
         if(!order && this.props.columns.length > 0) {
@@ -151,9 +141,7 @@ export class AppTable<R extends {children?: R[]}> extends React.Component<TableP
         const fieldAsArray = Array.isArray(field) ? field: [field];
         const getNestedObjectOptions = {defaultValue: "", arrayOfKey: fieldAsArray};
 
-        if(this._isDataFunction()) {
-
-        } else if(Array.isArray(this.state.data)) {
+        if(Array.isArray(this.state.data)) {
             const {data} = this.state;
 
             data.sort((first, second) => {
@@ -178,27 +166,6 @@ export class AppTable<R extends {children?: R[]}> extends React.Component<TableP
 
     onPageSizeChange = (pageSize) => this.setState({pageSize});
 
-    _getData = async () => {
-
-        let dataRecords = [], hasError = false;
-        if(!this.state.loading) this.setState({loading : true});
-
-        try {
-            const getData = this.props.data as GetData<R>;
-
-            dataRecords = await getData();
-        } catch(err) {
-            hasError = true;
-            if(typeof this.props.onError === "function") this.props.onError(err);
-        }
-
-        this.setState({
-            data : this._transformData(dataRecords),
-            loading: false,
-            hasError
-        })
-    };
-
     _onActionClick = (action: ITableAction) => {
         if(typeof action.onClick === "function") {
             action.onClick();
@@ -209,7 +176,7 @@ export class AppTable<R extends {children?: R[]}> extends React.Component<TableP
 
     render() {
 
-        const {columns, history, actions} = this.props;
+        const {columns, history, actions, keyPropertyName} = this.props;
         const {loading, data, pageSize} = this.state;
 
         const hasActions = Array.isArray(actions) && actions.length > 0;
@@ -235,7 +202,7 @@ export class AppTable<R extends {children?: R[]}> extends React.Component<TableP
                         tableLayout="auto"
                         dataSource={data}
                         loading={loading}
-                        rowKey={record => (record as any).key}
+                        rowKey={keyPropertyName}
                         onChange={this.onTableChange}
                         pagination={{
                             size : "small",
@@ -247,7 +214,7 @@ export class AppTable<R extends {children?: R[]}> extends React.Component<TableP
                                 className={AppTableCss.column}
                                 key={Array.isArray(column.code) ? column.code.join('_') : column.code}
                                 title={column.label}
-                                dataIndex={column.code as any}
+                                dataIndex={column.code}
                                 render={getColumnRenderer<R>(column, {history})}
                                 sorter={column.sortable}
                                 width={column.width ? column.width: ""}

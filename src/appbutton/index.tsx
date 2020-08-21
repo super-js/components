@@ -25,6 +25,8 @@ export interface AppButtonProps {
     loading?: boolean;
     isSubmit?: boolean;
     onClick?: () => void | Promise<void>;
+    fullWidth?: boolean;
+    className?: string;
 }
 
 export interface AppButtonConfirmationState extends IConfirmationResult {
@@ -71,8 +73,9 @@ export function AppButton(props: AppButtonProps) {
             className={cx(AppButtonCss.button, {
                 [AppButtonCss.link] : props.link,
                 [AppButtonCss.danger] : props.danger,
-                [AppButtonCss.warning] : props.warning
-            })}
+                [AppButtonCss.warning] : props.warning,
+                [AppButtonCss.fullWidth] : props.fullWidth
+            }, props.className)}
         >
             {props.iconName ? <Icon iconName={props.iconName} /> : null}
             {props.label ? props.label.toUpperCase() : ""}

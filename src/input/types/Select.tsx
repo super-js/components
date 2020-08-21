@@ -1,9 +1,10 @@
 import * as React               from "react";
-import cx                       from "classnames";
-import {Select, Icon }                from 'antd';
+import {Select }                from 'antd';
 import SelectCss                from "./Select.css";
-import {InputComponentProps}    from "../index";
 
+
+import {InputComponentProps}    from "../index";
+import {Icon} from "../../icon";
 
 export interface SelectProps extends InputComponentProps {
     multiple?   : boolean;
@@ -11,52 +12,68 @@ export interface SelectProps extends InputComponentProps {
 
 const NoOptionsFound = () => (
     <div className={SelectCss.notFound}>
-        <Icon type="frown" />
+        <Icon iconName="frown" />
         <div>No more options available or not matching your search criteria.</div>
     </div>
 );
 
 function InputSelect(props: SelectProps) {
 
-    const {onInput, onChange, validValues = [], value, multiple} = props;
+    const {onInput, validValues = [], value, multiple} = props;
 
-    let _filteredValidValues;
+    const [_validValues, setValidValues] = React.useState(Array.isArray(validValues) ? validValues : []);
+    const [_loadingValidValues, setLoadingValidValues] = React.useState(false);
 
-    if(multiple) {
-        if(Array.isArray(value)
-        && value.length > 0) {
-            _filteredValidValues = validValues.filter(validValue =>
-                !value.some(v => v === validValue.value)
-            );
+    const getValidValues = async search => {
+        if(typeof validValues === "function") {
+            setLoadingValidValues(true);
+            try {
+                const _ = await validValues(search);
+                setValidValues(_);
+            } catch(err) {
+                console.error(err);
+            }
+            setLoadingValidValues(false);
         }
     }
 
-    if(!_filteredValidValues) _filteredValidValues = validValues;
+    // let _filteredValidValues;
+    //
+    // if(multiple) {
+    //     if(Array.isArray(value) && value.length > 0) {
+    //         _filteredValidValues = validValues.filter(validValue =>
+    //             !value.some(v => v === validValue.value)
+    //         );
+    //     }
+    // }
+    //
+    // if(!_filteredValidValues) _filteredValidValues = validValues;
 
     return (
         <Select
-            mode={multiple ? "multiple" : "default"}
+            mode={multiple ? "tags" : null}
             allowClear
             showSearch
-            onChange={async value => {
+            onChange={async (value, option) => {
                 await onInput(value);
-                onChange();
             }}
             value={value}
             className={SelectCss.select}
-            notFoundContent={<NoOptionsFound />}
+            notFoundContent={null}
+            onSearch={typeof validValues === "function" ? getValidValues : null}
+            optionFilterProp="label"
+            optionLabelProp="label"
+            loading={_loadingValidValues}
+            suffixIcon={typeof validValues === "function" ? <span></span> : undefined}
         >
-            {_filteredValidValues.map(validValue => (
-                <Select.Option
-                    className={SelectCss.option}
-                    key={validValue.value}
-                    value={validValue.value}>
+            {_validValues.map(validValue => (
+                <Select.Option key={validValue.value} className={SelectCss.option} value={validValue.label} label={validValue.label}>
                     {validValue.label ? validValue.label : validValue.value}
                 </Select.Option>
             ))}
         </Select>
     )
-};
+}
 
 InputSelect.Multiple   = props => <InputSelect multiple {...props}/>;
 

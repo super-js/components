@@ -12,8 +12,6 @@ export interface ContentProps {
 function Content(props: ContentProps) {
     return (
         <div className={ContentCss.content}>
-            {/*{props.breadcrumbs ? <Breadcrumbs {...props.breadcrumbs} /> : null}*/}
-            {/*{props.breadcrumbs ? <Divider className={ContentCss.divider} /> : null}*/}
             {props.children}
         </div>
     )

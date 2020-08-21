@@ -3,9 +3,9 @@ import {Location} from "history";
 import {RouteComponentProps} from "react-router-dom";
 import {IconName} from "@fortawesome/fontawesome-svg-core";
 
-import {IBreadcrumbItem, PageWrapperContext, PageWrapperProps} from "./PageWrapper";
+import {IBreadcrumbItem, PageWrapperContext} from "./PageWrapper";
 
-type TRouteResolver = () => string;
+type TRouteResolver = (record?: any) => string;
 
 export interface IPageRoute {
     code: string;
@@ -18,106 +18,113 @@ export interface IPageRoute {
     children: IPageRoute[];
 }
 
-export interface IPageRouteProps<P> extends RouteComponentProps<P> {
+export interface IPageRouteProps<P, D = any> extends RouteComponentProps<P> {
     currentRoute: IPageRoute;
+    pageData: D;
     routes: IPageRoute[];
 }
 
 export interface IPageRouteToComponentMap {
-    [routeCode: string] : React.ComponentClass<IPageRouteProps<any>> | React.FunctionComponent<IPageRouteProps<any>>;
+    [routeCode: string] : React.ComponentClass<IPageRouteProps<any, any>> | React.FunctionComponent<IPageRouteProps<any, any>>;
 }
 
 export interface PageRouteToComponentMapProps {
     pageRouteToComponentMap: IPageRouteToComponentMap;
-    extraComponentProps?: Object;
+    actionRouteToComponentMap?: IPageRouteToComponentMap;
+    pageData?: any;
 }
 
-const setDefaultBreadcrumbs = (breadcrumbItems: IBreadcrumbItem[]) => {
+export const addBreadcrumbItems = (breadcrumbItems: IBreadcrumbItem[]) => {
 
-    const {onContextDataChange} = React.useContext(PageWrapperContext);
-    React.useEffect(() => {
-        onContextDataChange({
-            breadcrumbItems
-        });
-    }, []);
+    const {addBreadcrumbItems, removeBreadcrumbItems} = React.useContext(PageWrapperContext);
+
+    if(typeof addBreadcrumbItems === "function" && typeof removeBreadcrumbItems === "function") {
+
+        const willMount = React.useRef(true);
+        if (willMount.current) {
+            addBreadcrumbItems(breadcrumbItems)
+            willMount.current = false;
+        }
+
+        React.useEffect(() => () => {
+            removeBreadcrumbItems(breadcrumbItems)
+        }, []);
+    }
 };
 
+export const getAddBreadcrumbItems = () => {
 
-export interface IGetBreadcrumbsSetter {
-    currentPathName?: string;
-    defaultPathName?: string | string[];
-    defaultBreadcrumbs?: IBreadcrumbItem[];
-}
-const getBreadcrumbsSetter = (options: IGetBreadcrumbsSetter = {}) => {
+    const {addBreadcrumbItems, removeBreadcrumbItems} = React.useContext(PageWrapperContext);
 
-    const {defaultBreadcrumbs, defaultPathName, currentPathName} = options;
+    if(typeof addBreadcrumbItems === "function" && typeof removeBreadcrumbItems === "function") {
 
-    const {onContextDataChange} = React.useContext(PageWrapperContext);
-    const defaultTo = () =>             onContextDataChange({
-        breadcrumbItems: defaultBreadcrumbs
-    });
-
-    if(defaultBreadcrumbs && Array.isArray(defaultBreadcrumbs)) {
-        // React.useEffect(() => {
-        //     defaultTo();
-        // }, []);
+        const willMount = React.useRef(null);
 
         React.useEffect(() => {
-            if(defaultPathName === currentPathName) {
-                defaultTo();
+            return () => removeBreadcrumbItems(willMount.current);
+        }, []);
+
+        return (breadcrumbItems: IBreadcrumbItem[]) => {
+            if (!Array.isArray(willMount.current)) {
+                addBreadcrumbItems(breadcrumbItems);
+                willMount.current = breadcrumbItems;
             }
-        }, [currentPathName])
+        }
+    } else {
+        return () => null;
     }
 
-    return (breadcrumbItems: IBreadcrumbItem[]) => onContextDataChange({
-        breadcrumbItems
-    });
-};
+
+}
 
 
 export interface IPageDataLoader {
-    location: Location;
+    location?: Location;
     loader: () => Promise<any>;
-    loadOnlyOnce?: boolean;
     reloadPathname?: string | string[];
+    afterLoaded?: (pageData) => void;
 }
-const usePageDataLoader = (options: IPageDataLoader) => {
+export const usePageDataLoader = <T extends any>(options: IPageDataLoader): {pageData: T; loadingPageData: boolean} => {
 
-    const {
-        location, loader, loadOnlyOnce, reloadPathname
-    } = options;
+    const {location, loader, reloadPathname} = options;
 
     const reloadPathnames = Array.isArray(reloadPathname) ? reloadPathname : [reloadPathname];
 
-    const [pageData, setPageData] = React.useState([]);
+    const [pageData, setPageData] = React.useState<T>([] as any);
     const [loadingPageData, setPageLoading] = React.useState(true);
     const [isFirstLoad, setIsFirstLoad] = React.useState(true);
 
     React.useEffect(() => {
         (async () => {
-            if(reloadPathnames.indexOf(location.pathname) > -1 || loadOnlyOnce || isFirstLoad) {
+            if(!location || reloadPathnames.indexOf(location.pathname) > -1 || isFirstLoad) {
 
                 setPageLoading(true);
 
                 const _pageData = await loader();
+
+                if(typeof options.afterLoaded === "function") {
+                    options.afterLoaded(_pageData)
+                }
 
                 setPageData(_pageData);
                 setPageLoading(false);
                 setIsFirstLoad(false);
             }
         })();
-    }, loadOnlyOnce ? [] : [location.pathname]);
+    }, !location ? [] : [location.pathname]);
 
     return {
         pageData, loadingPageData
     }
 };
 
+export abstract class PageWrapperContextClass<T, S> extends React.Component<T, S>{
+    static contextType = PageWrapperContext
+}
+
 export const useCurrentSiteMapCode = () => {
     const {currentSiteMapCodes} = React.useContext(PageWrapperContext);
     return currentSiteMapCodes;
 }
 
-export {
-    setDefaultBreadcrumbs, getBreadcrumbsSetter, usePageDataLoader
-}
+export const resolveToAndLabel = (input, data?: any) => typeof input === "function" ? input(data ? data : {}) : input;

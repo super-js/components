@@ -56,4 +56,8 @@
             border-color: color(var(--error-color) lightness(+35%)) !important;
         }
     }
+
+    &.fullWidth {
+        width: 100%;
+    }
 }

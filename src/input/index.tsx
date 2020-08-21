@@ -32,15 +32,17 @@ export enum EInputTypes {
     dateTimePicker          = "dateTimePicker",
     dateRangePicker         = "dateRangePicker",
     dateTimeRangePicker     = "dateTimeRangePicker",
-    file                    = "file"
+    file                    = "file",
+    phone                   = "phone"
 }
 
 export interface IInputValidValue {
     label?      : string;
-    value       : any;
+    value       : any | any[];
 }
 
 export type InputValidValues            = IInputValidValue[];
+export type GetInputValidValues         = (searchText: string) => Promise<InputValidValues>;
 
 export interface IInputClass<P, S> extends React.ComponentClass<P, S> {
     parameterType: IParameterType
@@ -72,9 +74,9 @@ export interface InputComponentProps {
     onInput         : (value: any) => void;
     onChange        : (ev?: React.SyntheticEvent) => void;
     hasError        : boolean;
-    value           : any;
+    value?          : any;
     readOnly?       : boolean;
-    validValues?    : InputValidValues;
+    validValues?    : InputValidValues | GetInputValidValues;
 }
 
 const InputHOC = (parameterType: IParameterType, Component: React.FunctionComponent<InputComponentProps>) => {
@@ -214,6 +216,7 @@ const InputTypes: IInputTypes = {
     dateRangePicker             : InputHOC(parameterTypes.array({nonEmpty: true})       , DateTime.DateRangePicker),
     dateTimeRangePicker         : InputHOC(parameterTypes.array({nonEmpty: true})       , DateTime.DateTimeRangePicker),
     file                        : InputHOC(parameterTypes.file()        , File),
+    phone                       : InputHOC(parameterTypes.text()        , Text.Phone),
 };
 
 export default InputTypes;

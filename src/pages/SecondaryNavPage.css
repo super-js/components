@@ -1,14 +1,4 @@
-.anchor {
-    background: transparent;
-
-    & .anchorLinkContent {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-between;
-        align-items: center;
-    }
-}
-
-.contentColumn {
-    height : calc()
+.navAction {
+    padding:0;
+    display: block;
 }

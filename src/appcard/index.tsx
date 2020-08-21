@@ -15,9 +15,10 @@ export enum AppCardType {
 }
 
 export interface AppCardProps extends AppCardTitleProps, AppCardExtraProps {
-    children     : JSX.Element[] | JSX.Element | string;
-    fullHeight? : boolean;
-    small?       : boolean
+    children        : JSX.Element[] | JSX.Element | string;
+    className?      : string;
+    fullHeight?     : boolean;
+    small?          : boolean
 }
 
 interface AppCardTitleProps {
@@ -57,11 +58,11 @@ const AppCardExtra = (props: AppCardExtraProps): JSX.Element => (
 
 export const AppCard = (props: AppCardProps): JSX.Element => {
 
-    const {title, description, iconName, type, children, small, fullHeight, ...otherProps} = props;
+    const {title, description, iconName, type, children, small, fullHeight, className, ...otherProps} = props;
 
     return (
         <Card
-            className={cx(appCardCss.appCard, {
+            className={cx(appCardCss.appCard, className, {
                 [appCardCss.small]             : small,
                 [appCardCss.appCardError]      : props.type === AppCardType.error,
                 [appCardCss.appCardSuccess]    : props.type === AppCardType.success,

@@ -165,12 +165,19 @@ export default class Parameters extends React.Component<ParametersProps, Paramet
 
     onParameterValueInput   = (parameterCode, value) => {
         const {indexedParameters} = this.state;
+
         if(indexedParameters.has(parameterCode)) {
             indexedParameters.get(parameterCode).value = value;
 
             clearTimeout(this.onParameterValueInputTimeout);
             this.onParameterValueInputTimeout = setTimeout(() => {
-                this._onParametersChange(OnParametersChangeEventCode.PARAMS_VALUE_INPUT);
+
+                const newparams = new Map(this.state.indexedParameters);
+
+                this.setState({
+                    indexedParameters: newparams
+                }, () => this._onParametersChange(OnParametersChangeEventCode.PARAMS_VALUE_INPUT));
+
             }, 500);
 
         }

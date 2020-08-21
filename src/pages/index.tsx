@@ -5,3 +5,4 @@ export {default as DrawerPage}                   from './DrawerPage';
 export * from "./SecondaryNavPage";
 export * from "./utils";
 export * from "./PageWrapper";
+export * from "./CrudPages";
