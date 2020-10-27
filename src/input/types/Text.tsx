@@ -12,34 +12,36 @@ export interface TextProps extends InputComponentProps {
     isEmail?            : boolean;
     isTextArea?         : boolean;
     isPhone?            : boolean;
+    noOfRows?: number;
 }
 
 const Text = (props: TextProps) => {
-    const {onInput, onChange, hasError, value} = props;
+    const {onInput, onChange, hasError, value, noOfRows} = props;
 
-    let InputComponent, addOnBefore;
+    let InputComponent;
+    let customInputOptions = {} as any;
 
     if(props.isPassword) {
-        addOnBefore             = <Icon iconName="key-skeleton" />;
+        customInputOptions.addOnBefore = <Icon iconName="key-skeleton" />;
         InputComponent          = Input.Password;
     } else if(props.isTextArea) {
         InputComponent          = Input.TextArea;
+        customInputOptions.rows = noOfRows;
     } else if(props.isEmail) {
-        addOnBefore             = <Icon iconName="at" />;
+        customInputOptions.addOnBefore = <Icon iconName="at" />;
     } else if(props.isPhone) {
-        addOnBefore             = <Icon iconName="phone" />;
+        customInputOptions.addOnBefore = <Icon iconName="phone" />;
     }
 
     if(!InputComponent) InputComponent = Input;
 
     return <InputComponent
         allowClear
-        addonBefore={addOnBefore}
+        {...customInputOptions}
         className={cx({
             [TextCss.error] : hasError
         })}
         onInput={ev => onInput(ev.target.value)}
-
         onBlur={onChange}
         value={value === "undefined" ? "" : value}
     />

@@ -1,60 +1,39 @@
 import * as React from "react";
-import {RouteProps} from "react-router-dom";
-import {History} from "history";
+import type { History } from "history";
+import {Breadcrumb, Typography} from "antd";
 
-export interface IBreadcrumbsRoute {
-    code: string;
-    path: string;
-    label: string;
-    to: string;
-    exact?: boolean;
-    children        : IBreadcrumbsRoute[];
+import {AppCard} from "../appcard";
+import BreadcrumbsCss from "./Breadcrumbs.css";
+
+export interface IBreadcrumbItem {
+    label: string | React.ReactElement;
+    to?: string;
+    order?: number;
 }
 
-export interface BreadcrumbsProps {
-    ReactRoute      : React.ComponentClass<RouteProps>;
-    routes          : IBreadcrumbsRoute[];
-    history         : History;
-}
-
-export interface BreadcrumbProps {
-    ReactRoute      : React.ComponentClass<RouteProps>;
-    routes          : IBreadcrumbsRoute[];
-    history         : History;
-}
-
-export interface IBreadcrumbs {
-
+export interface IBreadcrumbsProps {
+    breadcrumbItems: IBreadcrumbItem[];
+    history: History;
 }
 
 
-const Breadcrumb = (props: BreadcrumbProps) => {
+export const Breadcrumbs = (props: IBreadcrumbsProps) => {
 
-    const {routes, ...rest} = props;
-
-    const onClick = to => rest.history.push(to);
+    const onBreadcrumbClick = (to: string) => props.history.push(to);
 
     return (
-        <React.Fragment>
-            {routes.map(route => (
-                <rest.ReactRoute key={route.code} exact={route.exact} path={route.path}>
-                    <a onClick={() => onClick(route.to)}>
-                        {route.label}
-                    </a>
-                    {route.children.length > 0 ? <Breadcrumb {...rest} routes={route.children} /> : null}
-                </rest.ReactRoute>
-            ))}
-        </React.Fragment>
+        <AppCard small className={BreadcrumbsCss.breadcrumbs}>
+            <Breadcrumb>
+                {props.breadcrumbItems.map(breadcrumbItem => (
+                    <Breadcrumb.Item key={`${breadcrumbItem.label}_${breadcrumbItem.order}`}>
+                        <span className={BreadcrumbsCss.breadCrumbItemContent}>
+                            {breadcrumbItem.to ? (
+                                <a onClick={() => onBreadcrumbClick(breadcrumbItem.to)}>{breadcrumbItem.label}</a>
+                            ) : <Typography.Text>{breadcrumbItem.label}</Typography.Text>}
+                        </span>
+                    </Breadcrumb.Item>
+                ))}
+            </Breadcrumb>
+        </AppCard>
     )
-};
-
-export default (props: BreadcrumbsProps) => {
-
-    const {routes, ...rest} = props;
-
-    return (
-        <div>
-            <Breadcrumb {...rest} routes={routes} />
-        </div>
-    );
 };

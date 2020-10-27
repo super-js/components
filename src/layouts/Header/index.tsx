@@ -8,7 +8,7 @@ import ActionPopover, {ActionPopoverProps} from "./ActionPopover";
 import {HorizontalMenu} from "../../menus";
 import {IMenuItem} from "../../menus";
 
-import {History} from "history";
+import type {History} from 'history';
 
 export interface IHeaderProps {
     logo?       : string;

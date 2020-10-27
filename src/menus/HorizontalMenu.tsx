@@ -1,6 +1,6 @@
 import * as React               from "react";
 import { Menu  }   from "antd";
-import {History}    from "history";
+import type {History}    from "history";
 
 import HorizontalMenuCss from './HorizontalMenu.css';
 import { IMenuItem, getMenuItem} from "./MenuItem";

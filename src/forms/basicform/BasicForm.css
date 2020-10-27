@@ -3,6 +3,17 @@
     display: flex;
     flex-direction: column;
 
+    & .formContent {
+        height: 100%;
+        //overflow-y: auto;
+    }
+
+    & .formActions {
+        position: sticky;
+        bottom: 0px;
+        background: #fff;
+    }
+
     &.fullHeight {
         height: 100%;
     }

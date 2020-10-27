@@ -1,7 +1,7 @@
 import * as React from "react";
 import cx from "classnames";
 import {Menu, Typography} from "antd";
-import {History} from "history";
+import type {History} from "history";
 import {IconName} from "@fortawesome/fontawesome-svg-core";
 
 import {Icon} from "../icon";

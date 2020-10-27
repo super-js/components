@@ -1,10 +1,7 @@
 import "./styles";
 
-import * as Forms                       from './forms';
 import * as Layouts                     from './layouts';
-import * as Input                       from './input';
 import * as Menus                       from './menus';
-import * as Pages                       from './pages';
 import * as Utils                       from './utils';
 
 export * from "./icon";
@@ -18,5 +15,5 @@ export * from "./overlay";
 export * from "./timer";
 
 export {
-    Forms, Layouts, Input, Menus, Pages, Utils
+    Layouts, Menus, Utils
 }

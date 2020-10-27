@@ -5,7 +5,7 @@ import {Typography, Divider} from "antd";
 import ErrorCss from './Error.css';
 import {Icon} from "../icon";
 import {AppCard} from "../appcard";
-import {SingleContentPage} from "../pages";
+import {SingleContent} from "../layouts";
 
 export interface ErrorProps {
     title?      : string;
@@ -47,9 +47,9 @@ function Error(props: ErrorProps) {
 }
 
 Error.Page = (props: ErrorProps) => (
-    <SingleContentPage>
+    <SingleContent>
         <Error {...props} />
-    </SingleContentPage>
+    </SingleContent>
 )
 
 export {Error};

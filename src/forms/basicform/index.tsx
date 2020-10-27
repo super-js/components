@@ -7,17 +7,13 @@ import BasicFormCss from './BasicForm.css';
 import {AppCard} from "../../appcard";
 import AppAlert from '../../appalert';
 import Actions, {IAction} from "../actions";
-import Parameters, {
-    IndexedParameters,
-    IndexedParametersNoOrder,
-    OnParametersChangeInfo,
-    TParameterDefinition
-} from "../parameters";
+import {InputTypes} from "../../input";
+import {Parameters, OnParametersChangeInfo, IParametersAndLayouts, IParameters} from "../parameters";
 import {bulkValidate} from "../../handlers/parameters/validator";
 
-import InputTypes from '../../input';
 import {IConfirmationResult, TOnConfirmation} from "../../appbutton";
 import {IconName} from "../../icon";
+import {IParametersLayout} from "../parameters/ParametersLayouts";
 
 
 export interface BasicFormProps {
@@ -26,25 +22,26 @@ export interface BasicFormProps {
     description?        : string,
     iconName?           : IconName,
     primaryActions?     : IAction[],
-    parameters?         : TParameterDefinition,
+    parameters?         : IParameters,
     secondaryActions?   : IAction[],
     info?               : string,
     warning?            : string,
     onSubmit?           : (parameters: any) => Promise<any>;
     clearValuesAfterSubmit?: boolean;
     onExit?             : () => void;
+    layouts?            : IParametersLayout[];
+    parametersAndLayoutsLoader? : () => Promise<IParametersAndLayouts>;
 }
 
 export interface BasicFormState {
     submitting                  : boolean;
     hasErrors                   : boolean;
-    indexedParameters           : IndexedParameters;
-    updatedParametersStates     : IndexedParametersNoOrder;
+    parameters                  : IParameters;
     errors                      : string[];
     success                     : string;
 }
 
-class BasicForm extends React.Component<BasicFormProps, BasicFormState> {
+export class BasicForm extends React.Component<BasicFormProps, BasicFormState> {
 
     static CRUD: React.FunctionComponentFactory<any>;
 
@@ -53,8 +50,7 @@ class BasicForm extends React.Component<BasicFormProps, BasicFormState> {
     state       = {
         submitting                  : false,
         hasErrors                   : false,
-        indexedParameters           : new Map(),
-        updatedParametersStates     : {},
+        parameters                  : this.props.parameters || {},
         errors                      : [],
         success                     : ""
     };
@@ -62,11 +58,11 @@ class BasicForm extends React.Component<BasicFormProps, BasicFormState> {
     shouldComponentUpdate(nextProps, nextState) {
         return (this.state.submitting !== nextState.submitting
         || this.state.hasErrors !== nextState.hasErrors
-        || this.state.updatedParametersStates !== nextState.updatedParametersStates
         || this.state.submitting !== nextState.submitting
         || this.state.errors !== nextState.errors
         || this.state.success !== nextState.success
-        || this.props.title !== nextProps.title)
+        || this.props.title !== nextProps.title
+        || this.state.parameters !== nextState.parameters)
         && !this._unMounted
     }
 
@@ -77,21 +73,23 @@ class BasicForm extends React.Component<BasicFormProps, BasicFormState> {
     onSubmit    = async ev => {
         ev.preventDefault();
 
-        const {indexedParameters} = this.state;
+        const {parameters} = this.state;
+        const parameterCodes = Object.keys(parameters);
 
-        const indexedParametersObject   = Object.fromEntries(indexedParameters.entries());
         let parametersValues          = {}, success = "";
 
         const {
             hasErrors, validatedParameters
-        } = await bulkValidate(Object.keys(indexedParametersObject).map(parameterCode => {
+        } = await bulkValidate(parameterCodes.map(parameterCode => {
 
-            const parameter = indexedParametersObject[parameterCode];
+            const parameter = parameters[parameterCode];
             parametersValues[parameterCode] = parameter.value;
+
 
             return {
                 ...parameter,
-                parameterType : InputTypes[parameter.type].parameterType
+                parameterType : InputTypes[parameter.inputType] ?
+                    InputTypes[parameter.inputType]() : InputTypes.text()
             }
         }));
 
@@ -99,10 +97,13 @@ class BasicForm extends React.Component<BasicFormProps, BasicFormState> {
 
         this.setState({
             hasErrors,
-            updatedParametersStates : Object.keys(validatedParameters).reduce((_, parameterCode) => {
+            parameters : parameterCodes.reduce((_, parameterCode) => {
+
                 _[parameterCode] = {
+                    ...parameters[parameterCode],
                     validationResult : validatedParameters[parameterCode]
-                };
+                }
+
                 return _;
             }, {}),
             submitting: readyToSubmit,
@@ -125,11 +126,15 @@ class BasicForm extends React.Component<BasicFormProps, BasicFormState> {
 
                     if(this.props.clearValuesAfterSubmit
                         && errors.length === 0) {
-                        let updatedParametersStates = {...indexedParametersObject};
-                        Object.keys(updatedParametersStates)
-                            .forEach(parameterCode => updatedParametersStates[parameterCode] = {value: ""});
 
-                        afterSubmitState["updatedParametersStates"] = updatedParametersStates;
+                        afterSubmitState["parameters"] = Object.keys(parameters).reduce((_, parameterCode) => {
+                            _[parameterCode] = {
+                                ...parameters[parameterCode],
+                                value: ""
+                            }
+                            return _;
+                        }, {});
+
                     }
 
                     this.setState(afterSubmitState);
@@ -142,20 +147,21 @@ class BasicForm extends React.Component<BasicFormProps, BasicFormState> {
 
     onParametersChange = (parametersInfo: OnParametersChangeInfo) => {
         if(!this._unMounted) {
-            this.setState({
-                indexedParameters   : parametersInfo.indexedParameters,
-                hasErrors           : parametersInfo.hasErrors
-            })
+            this.setState(state => ({
+                parameters          : parametersInfo.parameters,
+                hasErrors           : parametersInfo.hasErrors,
+                errors              : [...state.errors, ...parametersInfo.errors]
+            }))
         }
     };
 
     render() {
 
         const {
-            title, primaryActions, description, secondaryActions, iconName, info, warning, parameters, fullHeight, onExit
+            title, primaryActions, description, secondaryActions, iconName, info, warning, fullHeight, onExit
         } = this.props;
 
-        const {submitting, hasErrors, updatedParametersStates, errors, success} = this.state;
+        const {submitting, hasErrors, parameters, errors, success} = this.state;
 
         return (
             <AppCard
@@ -169,34 +175,39 @@ class BasicForm extends React.Component<BasicFormProps, BasicFormState> {
                 <Form layout="vertical" className={cx(BasicFormCss.form, {
                     [BasicFormCss.fullHeight] : fullHeight
                 })} onSubmitCapture={this.onSubmit}>
-                    {Array.isArray(errors) && errors.length > 0 ? (
-                        errors.map(error => <AppAlert key={error} message={error} type="error" />)
-                    ) : null}
-                    {success ? (
-                        <AppAlert message={success} type="success" />
-                    ) : null}
-                    {info ? (
-                        <AppAlert message={info} type="info" />
-                    ) : null}
-                    {warning ? (
-                        <AppAlert message={warning} type="warning" />
-                    ) : null}
-                    <div className={cx(BasicFormCss.parameters, {
-                        [BasicFormCss.fullHeight] : fullHeight
-                    })}>
-                        <Parameters
-                            definition={parameters}
-                            onParametersChange={this.onParametersChange}
-                            updatedParametersStates={updatedParametersStates}
+                    <div className={BasicFormCss.formContent}>
+                        {Array.isArray(errors) && errors.length > 0 ? (
+                            errors.map(error => <AppAlert key={error} message={error} type="error" />)
+                        ) : null}
+                        {success ? (
+                            <AppAlert message={success} type="success" />
+                        ) : null}
+                        {info ? (
+                            <AppAlert message={info} type="info" />
+                        ) : null}
+                        {warning ? (
+                            <AppAlert message={warning} type="warning" />
+                        ) : null}
+                        <div className={cx(BasicFormCss.parameters, {
+                            [BasicFormCss.fullHeight] : fullHeight
+                        })}>
+                            <Parameters
+                                parameters={parameters}
+                                onParametersChange={this.onParametersChange}
+                                layouts={this.props.layouts}
+                                parametersAndLayoutsLoader={this.props.parametersAndLayoutsLoader}
+                            />
+                        </div>
+                    </div>
+                    <div className={BasicFormCss.formActions}>
+                        {Array.isArray(primaryActions) && primaryActions.length > 0 ? <Divider /> : null}
+                        <Actions
+                            primaryActions={primaryActions}
+                            secondaryActions={secondaryActions}
+                            submitting={submitting}
+                            hasErrors={hasErrors}
                         />
                     </div>
-                    {Array.isArray(primaryActions) && primaryActions.length > 0 ? <Divider /> : null}
-                    <Actions
-                        primaryActions={primaryActions}
-                        secondaryActions={secondaryActions}
-                        submitting={submitting}
-                        hasErrors={hasErrors}
-                    />
                 </Form>
             </AppCard>
         )
@@ -238,5 +249,3 @@ BasicForm.CRUD = (props: BasicFormCrudProps) => {
         />
     );
 };
-
-export default BasicForm;

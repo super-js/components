@@ -1,5 +1,5 @@
-import InputTypes, {IInputBasicProps}        from "../../input";
-import * as React                           from "react";
+import * as React from "react";
+import {IInputBasicProps, Input, InputProps, InputState} from "../../input";
 
 import ParameterCss       from "./ParameterCss.css";
 import {ParametersContext} from "./index";
@@ -7,38 +7,43 @@ import {ValidationResult} from "../../handlers/parameters/validator";
 
 export type OnParameterValidationChange = (parameterCode: string, validationResult: ValidationResult) => void;
 
-export interface IParameterComponent extends IInputBasicProps {
+export interface IParameter extends IInputBasicProps {
     code                : string
 }
 
-export interface ParameterProps extends IParameterComponent {
+export interface IParameters {
+    [code: string]: IParameter
+}
+
+export interface ParameterProps extends IParameter {
     onValidationChange? : OnParameterValidationChange
 }
 
-function Parameter(props: ParameterProps) {
+export function Parameter(props: ParameterProps) {
+    const {code, onValidationChange, inputType, ...inputProps} = props;
 
-    const {code, onValidationChange, ...inputProps} = props;
+    const {
+        onParameterValidationChange, onParameterValueInput, parameters
+    } = React.useContext(ParametersContext);
 
-    const parametersContext = React.useContext(ParametersContext);
-
-    const InputComponent    = InputTypes.hasOwnProperty(props.type) ?
-        InputTypes[props.type] : InputTypes.text;
+    const InputComponent    = inputType && Input[inputType.toUpperCase()] ?
+        Input[inputType.toUpperCase()] : Input.TEXT;
 
     const _onValidationChange = validationResult => {
-        parametersContext.onParameterValidationChange(code, validationResult);
+        onParameterValidationChange(code, validationResult);
 
         if(typeof onValidationChange === "function") {
             onValidationChange(props.code, validationResult);
         }
     };
 
-    return <InputComponent
-        onInput={value => parametersContext.onParameterValueInput(code, value)}
-        onValidationChange={_onValidationChange}
-        otherParameters={Object.fromEntries(parametersContext.indexedParameters)}
-        {...inputProps}
-    />;
+    return (
+        <InputComponent
+            onInput={value => onParameterValueInput(code, value)}
+            onValidationChange={_onValidationChange}
+            parameters={parameters}
+            {...inputProps}
+        />
+    )
 
 }
-
-export default Parameter;

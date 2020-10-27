@@ -1,10 +1,8 @@
 :root {
 
-
-
-    --fa-primary-color: #00901d;
-    --fa-secondary-color: #d4b106;
-    --fa-secondary-opacity: .8;
+    --fa-primary-color: #389e0d;
+    --fa-secondary-color: #fadb14;
+    --fa-secondary-opacity: .9;
 
     --error-color: #f5222d;
     --error-background-color: rgba(245,34,45,.1);
@@ -19,7 +17,7 @@
     --button-border-color: var(--link-color);
     --button-text-color: var(--link-color);
 
-    --primary-background--color: rgb(244, 255, 184);
+    --primary-background--color: rgb(249, 253, 235);
 
     --max-width: 1480px;
 

@@ -8,17 +8,19 @@ import file                 from './types/file';
 
 import * as validator       from "./validator";
 
-export enum ParameterType {
-    text        = "text",
-    password    = "password",
-    email       = "email",
-    number      = "number",
-    array       = "array",
-    object      = "object",
-    file        = "file"
-}
+// export type ParameterType {
+//     text        = "text",
+//     password    = "password",
+//     email       = "email",
+//     number      = "number",
+//     array       = "array",
+//     object      = "object",
+//     file        = "file"
+// }
 
-export interface IParameter {
+export type ParameterType = "text" | "password" | "email" | "number" | "array" | "object" | "file";
+
+export interface IParameterHandler {
     code                : string,
     value?		        : any;
     parameterType       : ParameterType
@@ -33,13 +35,13 @@ export interface IParameterType {
 }
 
 export type ParameterTypeLoader     = (options?: Object) => IParameterType;
-export type ParameterTypes          = {[name in keyof typeof ParameterType]: ParameterTypeLoader}
+export type ParameterTypes          = {[name in ParameterType]: ParameterTypeLoader}
 
-const parameterTypes: ParameterTypes = {
+export const parameterTypes: ParameterTypes = {
     text, number, password, email, array, object, file
 };
 
 export {
-    parameterTypes, validator
+    validator
 }
 

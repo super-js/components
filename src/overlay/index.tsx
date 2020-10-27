@@ -1,7 +1,7 @@
 import * as React from "react";
 import { Typography, Divider, Progress } from "antd";
 
-import {SingleContentPage} from "../pages"
+import {SingleContent} from "../layouts"
 
 import OverlayCss from "./Overlay.css";
 import {AppCard} from "../appcard";
@@ -27,7 +27,7 @@ function Overlay(props: OverlayProps) {
 
     return (
         <div className={OverlayCss.overlay}>
-            <SingleContentPage.Narrow>
+            <SingleContent.Narrow>
                 <AppCard
                     title={props.title}
                     iconName={props.iconName}
@@ -48,7 +48,7 @@ function Overlay(props: OverlayProps) {
                         </div>
                     ) : null}
                 </AppCard>
-            </SingleContentPage.Narrow>
+            </SingleContent.Narrow>
         </div>
     )
 }

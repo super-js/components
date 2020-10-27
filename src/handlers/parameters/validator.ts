@@ -1,4 +1,4 @@
-import {IParameter, IParameterType} from "./index";
+import {IParameterHandler, IParameterType} from "./index";
 
 export enum ValidationStatus {
     success = "success",
@@ -48,7 +48,7 @@ const errorStatus       = (errors: string[]) => ({
 });
 
 const commonValidators = {
-    isRequiredCheck     : (parameter: IParameter): ValidationResult => {
+    isRequiredCheck     : (parameter: IParameterHandler): ValidationResult => {
 
         return !parameter.isRequired
         || (
@@ -66,7 +66,7 @@ const commonValidators = {
 };
 
 const defaultValidator = (validationCallback?: ValidationFunction): ValidationFunction => {
-    return async (parameter: IParameter, otherParameters): Promise<ValidationResult> => {
+    return async (parameter: IParameterHandler, otherParameters): Promise<ValidationResult> => {
 
         let validationResult = okStatus();
 

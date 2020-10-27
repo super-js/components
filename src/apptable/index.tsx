@@ -1,5 +1,5 @@
 import * as React from "react";
-import {History} from "history";
+import type {History} from "history";
 import {Button, Table, Divider, Select, Typography} from "antd";
 import {IconName} from "@fortawesome/fontawesome-svg-core";
 

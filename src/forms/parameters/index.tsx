@@ -1,12 +1,11 @@
 import * as React from "react";
-import { Skeleton } from 'antd';
 import {cloneDeep} from "lodash";
-
-import ParametersGroups, {IGroup} from "./ParametersGroups";
-import ParametersGrid from "./ParametersGrid";
+import {Skeleton} from "antd";
 
 import {ValidationResult, ValidationStatus} from "../../handlers/parameters/validator";
-import {IParameterComponent} from "./Parameter";
+import {IParameters} from "./Parameter";
+import {IParametersLayout, ParametersLayouts} from "./ParametersLayouts";
+
 
 export enum OnParametersChangeEventCode {
     PARAMS_VALUE_INPUT          = "PARAM_VALUE_INPUT",
@@ -14,218 +13,159 @@ export enum OnParametersChangeEventCode {
     PARAMS_VALIDATION_CHANGE    = "PARAMS_VALIDATION_CHANGE"
 }
 
-export type IndexedParametersNoOrder        = {[code: string] : Partial<IParameterComponent>};
-export type IndexedParameters               = Map<string, IParameterComponent>;
-
 export interface OnParametersChangeInfo {
     eventCode           : OnParametersChangeEventCode;
-    indexedParameters   : IndexedParameters;
+    parameters          : IParameters;
     hasErrors           : boolean;
+    errors              : string[];
 }
 export type OnParametersChange      = (parametersChangeInfo: OnParametersChangeInfo) => void;
-export type ParametersDefinition    = IGroup[] | IGroup;
-export type TParameterDefinition    = ParametersDefinition | (() => Promise<ParametersDefinition>);
+export type TParameterDefinitions    = IParameters | (() => Promise<IParameters>);
+export type TParametersLayoutsDefinition = IParametersAndLayouts | (() => Promise<IParametersAndLayouts>);;
+
+export interface IParametersAndLayouts {
+    parameters: IParameters;
+    layouts?: IParametersLayout[];
+}
 
 export interface ParametersProps {
-    definition?                 : TParameterDefinition,
+    parameters?                 : IParameters,
     onParametersChange?         : OnParametersChange,
-    updatedParametersStates?    : IndexedParametersNoOrder;
+    layouts?                    : IParametersLayout[];
+    parametersAndLayoutsLoader? : () => Promise<IParametersAndLayouts>;
 }
 
-export enum ParametersDefinitionStyle {
-    groups  = "groups",
-    grid    = "grid",
-    none    = "none"
-}
 export interface ParametersState {
-    definitionStyle     : ParametersDefinitionStyle;
-    indexedParameters   : IndexedParameters;
-    definition          : ParametersDefinition;
-    loadingDefinition   : boolean;
+    parameters          : IParameters;
+    layouts?            : IParametersLayout[];
+    loadingParameters   : boolean;
     error               : string;
 }
 
 const ParametersContext    = React.createContext({
     onParameterValueInput           : (parameterCode: string, value             : any)              => null,
     onParameterValidationChange     : (parameterCode: string, validationResult  : ValidationResult) => null,
-    indexedParameters               : new Map()
+    parameters                      : {}
 });
 
-export default class Parameters extends React.Component<ParametersProps, ParametersState> {
+
+export class Parameters extends React.Component<ParametersProps, ParametersState> {
 
     onParameterValueInputTimeout = null;
 
     state = {
-        loadingDefinition       : typeof this.props.definition === "function",
-        definition              : typeof this.props.definition === "function" ? null : this.props.definition,
-        definitionStyle         : ParametersDefinitionStyle.none,
-        indexedParameters       : new Map(),
+        loadingParameters       : typeof this.props.parametersAndLayoutsLoader === "function",
+        parameters              : typeof this.props.parametersAndLayoutsLoader === "function" ? {} : cloneDeep(this.props.parameters),
+        layouts                 : typeof this.props.parametersAndLayoutsLoader === "function" ? [] : cloneDeep(this.props.layouts),
         error                   : ""
     };
 
     shouldComponentUpdate(nextProps, nextState) {
-        return this.state.definitionStyle !== nextState.definitionStyle
-        || this.state.indexedParameters !== nextState.indexedParameters
-        || this.props.updatedParametersStates !== nextProps.updatedParametersStates
-        || this.state.loadingDefinition !== nextState.loadingDefinition
+        return this.state.parameters !== nextState.parameters
+            || (this.props.parameters !== nextProps.parameters && nextProps.parameters !== this.state.parameters)
+            || this.state.loadingParameters !== nextState.loadingParameters
     }
 
-    _getIndexedParameters = (parameters: IParameterComponent[]) => {
-
-        const {indexedParameters}               = this.state;
-        const {updatedParametersStates = {}}    = this.props;
-
-        return new Map(parameters.map(parameter => ([
-            parameter.code, {
-                ...cloneDeep(parameter),
-                ...(indexedParameters.has(parameter.code) ? indexedParameters.get(parameter.code) : {}),
-                ...(updatedParametersStates[parameter.code] ? updatedParametersStates[parameter.code] : {})
-            }
-        ])));
-    };
-
     async componentDidMount() {
-        if(typeof this.props.definition === "function") {
+        if(typeof this.props.parametersAndLayoutsLoader === "function") {
             try {
-                const definition = await this.props.definition();
+                const {parameters = {}, layouts = []} = await this.props.parametersAndLayoutsLoader();
 
                 this.setState({
-                    definition,
-                    loadingDefinition : false
-                }, () => {
-                    this._updateParameters();
-                })
+                    parameters: parameters,
+                    layouts: layouts,
+                    loadingParameters : false
+                }, () =>  this.onParametersInit());
+
             } catch(err) {
-                console.log(err);
                 this.setState({
                     error: err.message,
-                    loadingDefinition : false
-                })
+                    parameters: {},
+                    layouts: [],
+                    loadingParameters : false
+                },() =>  this.onParametersInit())
             }
         } else {
-            this._updateParameters();
+            this.onParametersInit();
         }
     }
 
     componentDidUpdate(prevProps, prevState) {
-        if(this.props.updatedParametersStates !== prevProps.updatedParametersStates) {
-            this._updateParameters();
+        if(this.props.parameters !== prevProps.parameters) {
+            this.setState({
+                parameters: this.props.parameters
+            })
         }
     }
 
-    _updateParameters = async () => {
-        await this._setDefinitionStyle();
-        this._onParametersChange(OnParametersChangeEventCode.PARAMS_VALUE_INPUT);
-    };
-
-    _setDefinitionStyle = () => {
-        return new Promise((resolve, reject) => {
-            const {definition} = this.state;
-
-            let definitionStyle = ParametersDefinitionStyle.none;
-            let parameters = [];
-
-            if(Array.isArray(definition) && definition.length > 0) {
-                definitionStyle = ParametersDefinitionStyle.groups;
-
-                parameters = definition
-                    .filter(group => Array.isArray(group.parameters) && group.parameters.length > 0)
-                    .reduce((_, group) => {
-                        _.push(...group.parameters);
-                        return _;
-                    }, []);
-
-            } else if (definition && !Array.isArray(definition) && definition.parameters.length > 0) {
-
-                definitionStyle = ParametersDefinitionStyle.grid;
-                parameters      = definition.parameters;
-
-            }
-
-            this.setState({
-                definitionStyle,
-                indexedParameters : this._getIndexedParameters(parameters)
-            }, () => resolve());
-        })
-    };
-
     _onParametersChange     = (eventCode: OnParametersChangeEventCode) => {
         if(typeof this.props.onParametersChange === "function") {
-            const clonedParameters = new Map(this.state.indexedParameters);
+
+            const {parameters} = this.state;
 
             this.props.onParametersChange({
                 eventCode           : eventCode,
-                indexedParameters   : clonedParameters,
-                hasErrors           : Array.from(clonedParameters.values())
-                    .some(param => param.validationResult
-                        && param.validationResult.validateStatus === ValidationStatus.error)
+                parameters          : parameters,
+                errors              : this.state.error ? [this.state.error] : [],
+                hasErrors           : !!this.state.error || Object.keys(parameters)
+                    .some(parameterCode => parameters[parameterCode].validationResult
+                        && parameters[parameterCode].validationResult.validateStatus === ValidationStatus.error)
             });
         }
     };
 
     onParameterValueInput   = (parameterCode, value) => {
-        const {indexedParameters} = this.state;
+        const {parameters} = this.state;
+        if(parameters.hasOwnProperty(parameterCode)) {
 
-        if(indexedParameters.has(parameterCode)) {
-            indexedParameters.get(parameterCode).value = value;
+            parameters[parameterCode].value = value;
 
             clearTimeout(this.onParameterValueInputTimeout);
             this.onParameterValueInputTimeout = setTimeout(() => {
 
-                const newparams = new Map(this.state.indexedParameters);
-
                 this.setState({
-                    indexedParameters: newparams
+                    parameters
                 }, () => this._onParametersChange(OnParametersChangeEventCode.PARAMS_VALUE_INPUT));
 
             }, 500);
-
         }
     };
 
     onParameterValidationChange  = (parameterCode: string, validationResult: ValidationResult) => {
-        const {indexedParameters} = this.state;
-        if(indexedParameters.has(parameterCode)) {
-            indexedParameters.get(parameterCode).validationResult = validationResult;
-            this._onParametersChange(OnParametersChangeEventCode.PARAMS_VALIDATION_CHANGE);
+        const {parameters} = this.state;
+        if(parameters.hasOwnProperty(parameterCode)) {
+            parameters[parameterCode].validationResult = validationResult;
+
+            this.setState({
+                parameters
+            }, () => this._onParametersChange(OnParametersChangeEventCode.PARAMS_VALIDATION_CHANGE));
         }
     };
 
+    onParametersInit = () => {
+        this._onParametersChange(OnParametersChangeEventCode.PARAMS_INIT);
+    }
+
     render() {
-
-        const {definitionStyle, indexedParameters, loadingDefinition, definition} = this.state;
-
-        const _renderContent = () => {
-            if(definitionStyle === ParametersDefinitionStyle.groups) {
-                return <ParametersGroups
-                    groups={(definition as IGroup[])}
-                    indexedParameters={indexedParameters}
-                />
-            } else if(definitionStyle === ParametersDefinitionStyle.grid) {
-                return <ParametersGrid
-                    indexedParameters={indexedParameters}
-                    rows={(definition as IGroup).rows}
-                />
-            } else {
-                return null;
-            }
-        };
-
-        return loadingDefinition ? (
+        return this.state.loadingParameters ? (
             <Skeleton active />
         ) : (
             <ParametersContext.Provider value={{
                 onParameterValueInput           : this.onParameterValueInput,
                 onParameterValidationChange     : this.onParameterValidationChange,
-                indexedParameters               : this.state.indexedParameters
+                parameters                      : this.state.parameters
             }}>
-                {_renderContent()}
+                <ParametersLayouts
+                    layouts={this.state.layouts}
+                    parameters={this.state.parameters}
+                />
             </ParametersContext.Provider>
         )
-
     }
 }
 
 export {
     ParametersContext
 }
+
+export type {IParameters};

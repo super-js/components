@@ -1,19 +1,19 @@
 import * as React from "react";
-import {Anchor} from "antd";
-import {History} from "history";
+import {Anchor, Skeleton} from "antd";
+import type {History} from "history";
 
 import {AppCard} from "../appcard";
 import {Icon} from "../icon";
 
 import VerticalMenuCss from "./VerticalMenu.css";
 import {IMenuItem} from "./MenuItem";
-import {resolveToAndLabel} from "../pages";
 
 export interface VerticalMenuProps {
     menuItems: IMenuItem[];
     history: History;
     currentMenuItemCodes: string[];
     resolverData?: any;
+    isLoading?: boolean;
 }
 
 export interface VerticalMenuItemsProps {
@@ -22,6 +22,8 @@ export interface VerticalMenuItemsProps {
     anchorRef: React.Ref<any>;
     resolverData?: any;
 }
+
+const resolveToAndLabel = (input, data?: any) => typeof input === "function" ? input(data ? data : {}) : input;
 
 const VerticalMenuItems = React.memo(function(props: VerticalMenuItemsProps) {
 
@@ -37,7 +39,8 @@ const VerticalMenuItems = React.memo(function(props: VerticalMenuItemsProps) {
                 )}
                 href={resolveToAndLabel(menuItem.to, props.resolverData)}
             >
-                {menuItem.children.length > 0 ? _renderLinks(menuItem.children) : null}
+                {Array.isArray(menuItem.children) && menuItem.children.length > 0 ?
+                    _renderLinks(menuItem.children) : null}
             </Anchor.Link>
         ));
 
@@ -58,21 +61,23 @@ export function VerticalMenu(props: VerticalMenuProps) {
 
         const _processMenuItems = _menuItems => _menuItems.forEach(menuItem => {
             _indexedMenuItems[menuItem.code] = resolveToAndLabel(menuItem.to, props.resolverData);
-            if(menuItem.children.length > 0) _processMenuItems(menuItem.children);
+            if(Array.isArray(menuItem.children) && menuItem.children.length > 0) _processMenuItems(menuItem.children);
         });
 
         _processMenuItems(menuItems);
+
+
         return _indexedMenuItems;
     }, [menuItems]);
 
     React.useEffect(() => {
-        currentMenuItemCodes.reverse().some(currentMenuItemCode => {
+        [...currentMenuItemCodes].reverse().some(currentMenuItemCode => {
             if(indexedMenuItems.hasOwnProperty(currentMenuItemCode)) {
                 (anchorRef.current as Anchor).setCurrentActiveLink(indexedMenuItems[currentMenuItemCode]);
                 return true;
             }
         })
-    }, [currentMenuItemCodes]);
+    }, [currentMenuItemCodes, indexedMenuItems]);
 
 
     const onLinkClick = React.useCallback((ev, link) => {
@@ -82,12 +87,16 @@ export function VerticalMenu(props: VerticalMenuProps) {
 
     return (
         <AppCard small>
-            <VerticalMenuItems
-                anchorRef={anchorRef}
-                menuItems={menuItems}
-                onLinkClick={onLinkClick}
-                resolverData={props.resolverData}
-            />
+            {props.isLoading ? (
+                <Skeleton active paragraph={{rows: 3}}/>
+            ) : (
+                <VerticalMenuItems
+                    anchorRef={anchorRef}
+                    menuItems={menuItems}
+                    onLinkClick={onLinkClick}
+                    resolverData={props.resolverData}
+                />
+            )}
         </AppCard>
     )
 }

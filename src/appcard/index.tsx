@@ -1,5 +1,5 @@
 import * as React                   from 'react';
-import {History} from "history";
+import type {History} from "history";
 import cx                           from 'classnames';
 import {IconName} from "@fortawesome/fontawesome-svg-core";
 import {Card, Typography}                         from 'antd';

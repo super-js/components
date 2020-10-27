@@ -4,3 +4,4 @@ tsconfig.dev.json
 webpack.dev.config.js
 lib/
 development/
+jest.config.js

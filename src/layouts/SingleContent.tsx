@@ -17,7 +17,7 @@ export interface SingleFormProps {
 function SingleContent(props: SingleFormProps) {
 
     return (
-        <div className={cx(SingleContentCss.singleForm, {
+        <div className={cx(SingleContentCss.singleContent, {
             [SingleContentCss.superNarrow] : props.size === ESingleFormSize.SuperNarrow,
             [SingleContentCss.narrow] : props.size === ESingleFormSize.Narrow,
             [SingleContentCss.wide] : props.size === ESingleFormSize.Wide,
@@ -31,4 +31,4 @@ SingleContent.SuperNarrow = (props) => <SingleContent {...props} size={ESingleFo
 SingleContent.Narrow = (props) => <SingleContent {...props} size={ESingleFormSize.Narrow}/>;
 SingleContent.Wide = (props) => <SingleContent {...props} size={ESingleFormSize.Wide}/>;
 
-export default SingleContent;
+export {SingleContent};

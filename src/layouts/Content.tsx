@@ -1,11 +1,8 @@
 import * as React from "react";
-import Breadcrumbs, {BreadcrumbsProps} from '../breadcrumbs';
-import { Divider } from "antd";
 
 import ContentCss from './Content.css';
 
 export interface ContentProps {
-    breadcrumbs?    : BreadcrumbsProps,
     children?       : JSX.Element | JSX.Element[] | string
 }
 
