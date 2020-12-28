@@ -22,7 +22,7 @@ export interface AppCardProps extends AppCardTitleProps, AppCardExtraProps {
 }
 
 interface AppCardTitleProps {
-    title?          : string;
+    title?          : string | JSX.Element;
     type?           : keyof typeof AppCardType | AppCardType;
     onExit?         : () => void;
 }
@@ -45,7 +45,9 @@ const AppCardTitle = (props: AppCardTitleProps): JSX.Element => props.title ? (
             [appCardCss.error]      : props.type === AppCardType.error,
             [appCardCss.success]    : props.type === AppCardType.success,
             [appCardCss.warning]    : props.type === AppCardType.warning
-        })}>{props.title.toUpperCase()}</h4>
+        })}>
+            {typeof props.title === "string" ? props.title.toUpperCase() : props.title}
+        </h4>
     </div>
 ) : null;
 

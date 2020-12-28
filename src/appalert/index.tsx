@@ -1,5 +1,4 @@
 import * as React   from "react";
-import * as ReactDOM     from "react-dom";
 
 import {Alert}      from "antd";
 import AppAlertCss  from "./AppAlert.css";
@@ -10,7 +9,7 @@ export interface AppAlertProps {
     disappearIn?        : number
 }
 
-function AppAlert(props: AppAlertProps): JSX.Element {
+export function AppAlert(props: AppAlertProps): JSX.Element {
 
     const [isVisible, setVisibility]    = React.useState(true);
     let disappearInTimeout              = null;
@@ -45,5 +44,3 @@ function AppAlert(props: AppAlertProps): JSX.Element {
         </div>
     );
 }
-
-export default AppAlert;

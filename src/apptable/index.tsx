@@ -1,6 +1,6 @@
 import * as React from "react";
 import type {History} from "history";
-import {Button, Table, Divider, Select, Typography} from "antd";
+import { Table, Divider, Select, Typography} from "antd";
 import {IconName} from "@fortawesome/fontawesome-svg-core";
 
 import {AppCard} from "../appcard";
@@ -8,23 +8,15 @@ import {AppCard} from "../appcard";
 import AppTableCss from "./AppTable.css";
 import {getNestedObjectValueByArray} from "../utils";
 import {AppButton} from "../appbutton";
+import {Icon} from "../icon";
 
-// interface IDataRecordBase {
-//     key: any;
-// }
-
-//type TDataRecordsState<R> = R & IDataRecordBase;
-//type TDataRecords<R> = R[];
-//type TData<R> = TDataRecords<R> | GetData<R>;
-
-//export type GetData<R> = () => Promise<TDataRecords<R>>;
 
 type TRenderColumnItem<R> =(text: any, record: R, index: number) => React.ReactNode;
 
 export interface IColumn<R> {
     code: string | string[];
     label: string;
-    linkTo?: (record: R) => string;
+    linkTo?: (record: R) => string | null;
     render?: TRenderColumnItem<R>;
     sortable?: boolean;
     width?: string;
@@ -37,13 +29,25 @@ export interface ITableAction {
     iconName?: IconName;
 }
 
+export interface ITableColumnAction<R> extends Omit<ITableAction, 'to' | 'label'> {
+    to?: (record: R) => string;
+    label?: string;
+    shouldRender?: (record: R) => boolean;
+}
+
 export interface TablePageProps<R> {
+    expandAll?: boolean;
+    hideRowsFilter?: boolean;
+    hidePagination?: boolean;
+    fullHeight?: boolean;
+    title?: string;
     columns: IColumn<R>[];
     data?:R[];
     onError?: (error: Error) => void;
     keyPropertyName: string;
     history?: History;
     actions?: ITableAction[];
+    columnActions?: ITableColumnAction<R>[];
     loading?: boolean;
 }
 
@@ -65,16 +69,48 @@ export interface AppTableConfigProps {
 
 function getColumnRenderer<R>(column: IColumn<R>, options: IGetColumnRendererOptions = {}): TRenderColumnItem<R> {
     if(typeof column.linkTo === "function" && options.history) {
-        return (text, record, index) => (
-            <a onClick={() => options.history.push({
-                pathname: column.linkTo(record),
-                state: record
-            })}>
-                {text}
-            </a>
-        )
+        return (text, record, index) => {
+
+            const pathName = column.linkTo(record);
+
+            return pathName && typeof pathName === "string" ? (
+                <a onClick={() => options.history.push({
+                    pathname: column.linkTo(record),
+                    state: record
+                })}>
+                    {text}
+                </a>
+            ) : text
+        }
     } else if(typeof column.render === "function") {
         return column.render;
+    }
+}
+
+function getActionColumnRenderer<R>(actions: ITableColumnAction<R>[], {history}) {
+    return (text, record: R) => {
+
+        const onClick = action => {
+            if(typeof action.to === "function") {
+                history.push(action.to(record))
+            } else if(typeof action.onClick === "function") {
+                action.onClick(record);
+            }
+        }
+
+        return (
+            <div className={AppTableCss.columnActions}>
+                {actions
+                    .filter(action => typeof action.shouldRender !== "function" || action.shouldRender(record))
+                    .map(action => (
+                        <a onClick={() => onClick(action)}>
+                            {action.iconName ? <Icon iconName={action.iconName} /> : null}
+                            {action.label ? <span>{action.label}</span> : null}
+                        </a>
+                    ))
+                }
+            </div>
+        )
     }
 }
 
@@ -176,38 +212,51 @@ export class AppTable<R extends object = any[]> extends React.Component<TablePag
 
     render() {
 
-        const {columns, history, actions, keyPropertyName} = this.props;
+        const {
+            columns, history, actions, keyPropertyName, fullHeight, title, hidePagination, hideRowsFilter,
+            expandAll, columnActions = []
+        } = this.props;
         const {loading, data, pageSize} = this.state;
 
         const hasActions = Array.isArray(actions) && actions.length > 0;
 
         return (
-            <AppCard small fullHeight>
+            <AppCard small fullHeight={fullHeight}>
+                {title ? (
+                    <Typography.Title level={5}>{title}</Typography.Title>
+                ) : null}
                 <div className={AppTableCss.table}>
-                    <div className={AppTableCss.tableHeader}>
-                        <div className={AppTableCss.actions}>
-                            {hasActions ? actions.map(action => (
-                                <AppButton
-                                    key={action.label}
-                                    onClick={() => this._onActionClick(action)}
-                                    iconName={action.iconName}
-                                    label={action.label}
-                                />
-                            )) : null}
-                        </div>
-                        <AppTableConfig pageSize={pageSize} onPageSizeChange={this.onPageSizeChange} />
-                    </div>
-                    <Divider />
+                    {hasActions || !hideRowsFilter ? (
+                        <React.Fragment>
+                            <div className={AppTableCss.tableHeader}>
+                                <div className={AppTableCss.actions}>
+                                    {hasActions ? actions.map(action => (
+                                        <AppButton
+                                            key={action.label}
+                                            onClick={() => this._onActionClick(action)}
+                                            iconName={action.iconName}
+                                            label={action.label}
+                                        />
+                                    )) : null}
+                                </div>
+                                {!hideRowsFilter ? (
+                                    <AppTableConfig pageSize={pageSize} onPageSizeChange={this.onPageSizeChange} />
+                                ) : null}
+                            </div>
+                            <Divider />
+                        </React.Fragment>
+                    ) : null }
                     <Table<R>
                         tableLayout="auto"
                         dataSource={data}
                         loading={loading}
                         rowKey={keyPropertyName}
                         onChange={this.onTableChange}
-                        pagination={{
+                        pagination={!hidePagination ? {
                             size : "small",
                             pageSize
-                        }}
+                        } : false}
+                        defaultExpandAllRows={expandAll}
                     >
                         {columns.map((column, ix) => (
                             <Table.Column<R>
@@ -220,6 +269,13 @@ export class AppTable<R extends object = any[]> extends React.Component<TablePag
                                 width={column.width ? column.width: ""}
                             />
                         ))}
+                        {columnActions.length > 0 ? (
+                            <Table.Column<R>
+                                className={AppTableCss.column}
+                                render={getActionColumnRenderer<R>(columnActions, {history})}
+                                sorter={false}
+                            />
+                        ) : null}
                     </Table>
                 </div>
             </AppCard>

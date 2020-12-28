@@ -15,14 +15,18 @@ export interface IconProps {
     onClick?: () => void;
     spin?: boolean;
     danger?: boolean;
-    className?: string
+    className?: string;
+    clickable?: boolean
 }
 
-export const Icon = (props: IconProps) => {
+export interface IconSpinnerProps extends Omit<IconProps, 'iconName' | 'spin'> {}
+
+const Icon = (props: IconProps) => {
     return (
         <FontAwesomeIcon
             className={cx(IconCss.icon, props.className, {
-                [IconCss.danger] : props.danger
+                [IconCss.danger] : props.danger,
+                [IconCss.clickable] : props.clickable
             })}
             icon={["fad", props.iconName]}
             size={props.size}
@@ -32,4 +36,7 @@ export const Icon = (props: IconProps) => {
     )
 };
 
+Icon.Spinner = (props: IconSpinnerProps) => <Icon iconName="spinner" spin {...props} />;
+
+export {Icon}
 export type {IconName, SizeProp};

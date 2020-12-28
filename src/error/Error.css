@@ -1,14 +1,14 @@
 .error {
 
-    height: 100%;
-    width: 100%;
     display: flex;
-    align-items: center;
+    flex-direction: column;
 
     & .errorContent {
+        flex-grow: 2;
         display: flex;
         justify-content: flex-start;
         align-items: start;
+        height: 100%;
 
         & > .image {
             margin-right: 10px;
@@ -37,14 +37,11 @@
         }
     }
 
-    & .imageWrapper {
-        text-align: center;
 
-        & img {
-            width: 250px;
-            max-width: 100%;
-            margin: auto;
-        }
+    & .errorActions {
+        position: sticky;
+        bottom: 0px;
+        background: #fff;
     }
 
 }

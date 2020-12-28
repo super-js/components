@@ -1,55 +1,71 @@
 import * as React from "react";
-
 import {Typography, Divider} from "antd";
 
 import ErrorCss from './Error.css';
 import {Icon} from "../icon";
 import {AppCard} from "../appcard";
-import {SingleContent} from "../layouts";
 
-export interface ErrorProps {
+import {AppButton} from "../appbutton";
+
+export interface IAppErrorAction {
+    label: string;
+    onClick: () => void;
+}
+
+export interface AppErrorProps {
     title?      : string;
     status?     : number;
-    message?    : JSX.Element;
+    message?    : JSX.Element | string;
+    actions?: IAppErrorAction[];
 }
 
-const STATUS_ICONS = {
-    500: <Icon iconName="sad-tear" />
+const ERRORS = {
+    404: {
+        Icon: <Icon iconName="sad-tear" />,
+        title: 'Page not found',
+        Message: <Typography>The page you're looking for doesn't exist.</Typography>
+    },
+    500: {
+        Icon: <Icon iconName="sad-cry" />,
+        title: 'Oops, something went wrong',
+        Message: <Typography>An unexpected error has occurred. Please try again or contact the support.</Typography>
+    }
 }
 
-function Error(props: ErrorProps) {
 
-    const title     = props.title || (props.status === 404 ? "Page not found" : "Oops, something went wrong");
-    const Message   = props.message || (props.status === 404 ?
-        <Typography>We couldn't find the page you're looking for, are you sure this is where you're meant to be?</Typography> : <Typography>Something went terribly wrong and our team is currently looking into the issue, please try again later.</Typography>)
+export function AppError(props: AppErrorProps) {
+
+    const StatusIcon = ERRORS[props.status] ? ERRORS[props.status].Icon : <Icon iconName="frown" />;
+    const title = ERRORS[props.status] ? ERRORS[props.status].title : ERRORS[500].title;
+    const Message = ERRORS[props.status] ? ERRORS[props.status].Message : ERRORS[500].Message;
 
     return (
-        <div className={ErrorCss.error}>
-            <AppCard type="error">
-                <div className={ErrorCss.errorContent}>
-                    <div className={ErrorCss.image}>
-                        <Icon iconName="sad-tear" size="10x"/>
+        <AppCard type="error" fullHeight className={ErrorCss.error}>
+            <div className={ErrorCss.errorContent}>
+                <div className={ErrorCss.image}>
+                    {StatusIcon}
+                </div>
+                <div className={ErrorCss.errorDetail}>
+                    <div className={ErrorCss.title}>
+                        <Typography.Title level={4}>{title}</Typography.Title>
+                        <Typography.Title level={4} type="secondary">{props.status}</Typography.Title>
                     </div>
-                    <div className={ErrorCss.errorDetail}>
-                        <div className={ErrorCss.title}>
-                            <Typography.Title level={4}>{title}</Typography.Title>
-                            <Typography.Title level={4} type="secondary">{props.status}</Typography.Title>
-                        </div>
-                        <Divider />
-                        <div className={ErrorCss.message}>
-                            {Message}
-                        </div>
+                    <Divider />
+                    <div className={ErrorCss.message}>
+                        {Message}
                     </div>
                 </div>
-            </AppCard>
-        </div>
+            </div>
+            <div className={ErrorCss.errorActions}>
+                {props.actions ? props.actions.map((action) => (
+                    <AppButton
+                        key={action.label}
+                        link
+                        label={action.label}
+                        onClick={action.onClick}
+                    />
+                )) : null}
+            </div>
+        </AppCard>
     )
 }
-
-Error.Page = (props: ErrorProps) => (
-    <SingleContent>
-        <Error {...props} />
-    </SingleContent>
-)
-
-export {Error};

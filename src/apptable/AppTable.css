@@ -49,6 +49,18 @@ div.table {
             & > tr {
                 & > td {
                     padding: 3px 5px;
+
+                    & > div.columnActions {
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: flex-end;
+                        align-items: center;
+                        text-align: right;
+
+                        & > a {
+                            cursor: pointer;
+                        }
+                    }
                 }
             }
         }

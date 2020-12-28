@@ -10,4 +10,7 @@
             fill: var(--error-color) !important;
         }
     }
+    &.clickable {
+        cursor: pointer;
+    }
 }
