@@ -1,10 +1,13 @@
 {
   "name": "@super-js/components",
   "version": "0.0.1",
-  "main": "src/index.tsx",
+  "main": "lib/index.js",
   "author": "Jakub Razak",
   "license": "MIT",
-  "private": true,
+  "repository": "git://github.com/super-js/components",
+  "files": [
+    "lib"
+  ],
   "scripts": {
     "build": "npx rimraf lib/ && npx tsc && npx postcss src/**/*.css --base src --dir lib",
     "development": "npx webpack-dev-server --config webpack.dev.config.js"

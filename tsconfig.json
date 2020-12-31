@@ -1,12 +1,13 @@
 {
    "compilerOptions"       : {
-      "target"                         : "esnext",
-      "module"                         : "esnext",
-      "outDir"                         : "./lib/",
-      "moduleResolution"               : "node",
-      "sourceMap"                      : true,
+      "lib"                      : ["es2020", "DOM"],
+      "target"                   : "esnext",
+      "module"                   : "esnext",
+      "moduleResolution"         : "node",
       "jsx"                            : "react",
-      "declaration"                    : true,
+      "sourceMap"                : true,
+      "outDir"                   : "./lib",
+      "declaration"              : true,
       "plugins"                        : [
          {
             "name": "typescript-plugin-css-modules",
