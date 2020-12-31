@@ -1,10 +1,10 @@
 {
    "compilerOptions"       : {
       "lib"                      : ["es2020", "DOM"],
-      "target"                   : "esnext",
-      "module"                   : "esnext",
+      "target"                   : "es2020",
+      "module"                   : "es2020",
       "moduleResolution"         : "node",
-      "jsx"                            : "react",
+      "jsx" : "react",
       "sourceMap"                : true,
       "outDir"                   : "./lib",
       "declaration"              : true,
