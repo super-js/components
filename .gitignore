@@ -3,3 +3,4 @@ node_modules
 src/**/*.js
 src/**/*.js.map
 lib/
+yarn-error.log
