@@ -9,7 +9,7 @@
     "lib"
   ],
   "scripts": {
-    "build": "npx rimraf lib/ && npx tsc && npx postcss \"src/**/*.css\" --base src --dir lib",
+    "build": "npx rimraf lib/ && npx tsc && npx postcss 'src/**/*.css' --base src --dir lib",
     "development": "npx webpack-dev-server --config webpack.dev.config.js"
   },
   "devDependencies": {
