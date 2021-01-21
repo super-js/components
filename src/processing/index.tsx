@@ -7,20 +7,21 @@ import {AppCard}      from "../appcard";
 
 import ProcessingCss from "./Processing.css";
 
-enum EProcessingSize {
+export enum EProcessingSize {
     SMALL       = "SMALL",
     REGULAR     = "REGULAR",
     LARGE       = "LARGE"
 }
 
 export interface ProcessingProps {
-    label?  : string,
-    size?   : EProcessingSize
+    label?  : string;
+    size?   : EProcessingSize;
+    className?: string;
 }
 
 const Processing = (props: ProcessingProps) => {
     return (
-        <div className={cx(ProcessingCss.processing, {
+        <div className={cx(ProcessingCss.processing, props.className, {
             [ProcessingCss.regularSize] : props.size === EProcessingSize.REGULAR,
             [ProcessingCss.largeSize] : props.size === EProcessingSize.LARGE,
         })}>

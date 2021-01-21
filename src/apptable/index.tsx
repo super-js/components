@@ -2,6 +2,7 @@ import * as React from "react";
 import type {History} from "history";
 import { Table, Divider, Select, Typography} from "antd";
 import {IconName} from "@fortawesome/fontawesome-svg-core";
+import map from "lodash-es/map"
 
 import {AppCard} from "../appcard";
 
@@ -35,7 +36,7 @@ export interface ITableColumnAction<R> extends Omit<ITableAction, 'to' | 'label'
     shouldRender?: (record: R) => boolean;
 }
 
-export interface TablePageProps<R> {
+export interface AppTableProps<R> {
     expandAll?: boolean;
     hideRowsFilter?: boolean;
     hidePagination?: boolean;
@@ -51,7 +52,7 @@ export interface TablePageProps<R> {
     loading?: boolean;
 }
 
-export interface TablePageState<R> {
+export interface AppTableState<R> {
     loading: boolean;
     data:R[];
     hasError?: boolean;
@@ -65,6 +66,10 @@ interface IGetColumnRendererOptions {
 export interface AppTableConfigProps {
     pageSize: number;
     onPageSizeChange: (value: any) => void;
+}
+
+export interface AppTableRecordType {
+    children?: AppTableRecordType[];
 }
 
 function getColumnRenderer<R>(column: IColumn<R>, options: IGetColumnRendererOptions = {}): TRenderColumnItem<R> {
@@ -128,16 +133,7 @@ const AppTableConfig = (props: AppTableConfigProps) => (
 );
 
 
-export class AppTable<R extends object = any[]> extends React.Component<TablePageProps<R>, TablePageState<R>>{
-
-    // _transformData = (data: any): TDataRecordsState<R>[] => {
-    //     return data.map(dataRecord => ({
-    //         key: dataRecord[this.props.keyPropertyName],
-    //         ...dataRecord,
-    //         ...(Array.isArray(dataRecord.children) && dataRecord.children.length > 0 ?
-    //             {children: this._transformData(dataRecord.children)} : {})
-    //     }))
-    // };
+export class AppTable<R extends AppTableRecordType | object = any> extends React.Component<AppTableProps<R>, AppTableState<R>>{
 
     state = {
         loading     : this.props.loading,
@@ -145,6 +141,19 @@ export class AppTable<R extends object = any[]> extends React.Component<TablePag
         hasError    : false,
         pageSize    : 50
     };
+
+    static expandIcon(props) {
+
+        if(!Array.isArray(props.record.children) || props.record.children.length === 0) {
+            return <span>&nbsp;&nbsp;</span>;
+        }
+
+        return <Icon
+            clickable
+            iconName={props.expanded ? 'chevron-double-down' : 'chevron-double-right'}
+            onClick={ev => props.onExpand(props.record, ev)}
+        />;
+    }
 
     componentDidUpdate(prevProps, prevState) {
 
@@ -256,7 +265,10 @@ export class AppTable<R extends object = any[]> extends React.Component<TablePag
                             size : "small",
                             pageSize
                         } : false}
-                        defaultExpandAllRows={expandAll}
+                        expandable={{
+                            defaultExpandAllRows: expandAll,
+                            expandIcon: AppTable.expandIcon
+                        }}
                     >
                         {columns.map((column, ix) => (
                             <Table.Column<R>

@@ -12,7 +12,7 @@ library.add(fad);
 export interface IconProps {
     iconName: IconName;
     size?: SizeProp;
-    onClick?: () => void;
+    onClick?: (ev: any) => any;
     spin?: boolean;
     danger?: boolean;
     className?: string;
