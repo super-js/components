@@ -1,8 +1,7 @@
 import * as React                   from 'react';
-import type {History} from "history";
 import cx                           from 'classnames';
 import {IconName} from "@fortawesome/fontawesome-svg-core";
-import {Card, Typography}                         from 'antd';
+import {Card, Typography, Divider}                         from 'antd';
 import appCardCss from './AppCard.css';
 import {Icon} from "../icon";
 
@@ -18,7 +17,8 @@ export interface AppCardProps extends AppCardTitleProps, AppCardExtraProps {
     children        : JSX.Element[] | JSX.Element | string;
     className?      : string;
     fullHeight?     : boolean;
-    small?          : boolean
+    small?          : boolean;
+    smallTitle?     : string;
 }
 
 interface AppCardTitleProps {
@@ -74,6 +74,12 @@ export const AppCard = (props: AppCardProps): JSX.Element => {
             title={title                    ? <AppCardTitle title={title} type={type} {...otherProps} />    : null}
             extra={iconName || description  ? <AppCardExtra iconName={iconName} description={description} />    : null}
         >
+            {props.smallTitle ? (
+                <div>
+                    <Typography.Text type="secondary">{props.smallTitle}</Typography.Text>
+                    <Divider className={appCardCss.divider} />
+                </div>
+            ) : null}
             {children}
         </Card>
     )

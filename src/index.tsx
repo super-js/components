@@ -13,6 +13,7 @@ export * from './appcard';
 export * from "./apptable";
 export * from "./overlay";
 export * from "./timer";
+export * from "./apptimeline";
 
 export {
     Layouts, Menus, Utils

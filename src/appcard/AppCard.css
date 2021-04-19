@@ -90,4 +90,8 @@
             font-size: 24px;
         }
     }
+
+    & .divider {
+        margin:  5px 0 !important;
+    }
 }

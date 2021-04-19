@@ -1,4 +1,5 @@
 import * as React from "react";
+import type {History} from "history";
 import cx from "classnames";
 import {Button, Popconfirm}                       from 'antd';
 
@@ -15,6 +16,8 @@ export interface IConfirmationResult {
 export type TOnConfirmation = () => Promise<IConfirmationResult> | IConfirmationResult;
 
 export interface AppButtonProps {
+    history?: History;
+    to?: string;
     label?: string;
     link?: boolean;
     danger?: boolean;
@@ -56,20 +59,26 @@ export function AppButton(props: AppButtonProps) {
     const onProceed = () => {
         if(confirmationStatus.isValid) {
             setConfirmationVisibility(false);
-            if(typeof props.onClick === "function") {
-                props.onClick();
-            }
+            onClick();
         }
     };
+
+    const onClick = () => {
+        if(props.history && props.to) {
+            props.history.push(props.to);
+        } else if(typeof props.onClick === "function") {
+            props.onClick();
+        }
+    }
 
     const _renderButton = () => (
         <Button
             disabled={props.disabled}
-            type={"default"}
+            type={props.link ? "link" : "default"}
             shape="round"
             loading={props.loading}
             htmlType={props.isSubmit ? "submit" : "button"}
-            onClick={hasConfirmation ? () => onConfirmation() : props.onClick}
+            onClick={hasConfirmation ? () => onConfirmation() : onClick}
             className={cx(AppButtonCss.button, {
                 [AppButtonCss.link] : props.link,
                 [AppButtonCss.danger] : props.danger,
@@ -98,3 +107,5 @@ export function AppButton(props: AppButtonProps) {
         </Popconfirm>
     ) : _renderButton()
 }
+
+export * from "./AppButtonGroup";

@@ -1,5 +1,5 @@
 import * as React from "react";
-import {Anchor, Skeleton} from "antd";
+import {Anchor, Skeleton, Typography} from "antd";
 import type {History} from "history";
 
 import {AppCard} from "../appcard";
@@ -14,6 +14,8 @@ export interface VerticalMenuProps {
     currentMenuItemCodes: string[];
     resolverData?: any;
     isLoading?: boolean;
+    sharedUseRef?: React.MutableRefObject<any>;
+    title?: string;
 }
 
 export interface VerticalMenuItemsProps {
@@ -53,9 +55,9 @@ const VerticalMenuItems = React.memo(function(props: VerticalMenuItemsProps) {
 
 export function VerticalMenu(props: VerticalMenuProps) {
 
-    const {menuItems, history, currentMenuItemCodes} = props;
+    const {menuItems, history, currentMenuItemCodes, sharedUseRef} = props;
 
-    const anchorRef             = React.useRef();
+    const anchorRef             = sharedUseRef || React.useRef();
     const indexedMenuItems      = React.useMemo(() => {
         let _indexedMenuItems = {};
 
@@ -71,13 +73,17 @@ export function VerticalMenu(props: VerticalMenuProps) {
     }, [menuItems]);
 
     React.useEffect(() => {
-        [...currentMenuItemCodes].reverse().some(currentMenuItemCode => {
-            if(indexedMenuItems.hasOwnProperty(currentMenuItemCode)) {
-                (anchorRef.current as Anchor).setCurrentActiveLink(indexedMenuItems[currentMenuItemCode]);
-                return true;
-            }
-        })
-    }, [currentMenuItemCodes, indexedMenuItems]);
+        if(anchorRef.current) {
+            const linkFound = [...currentMenuItemCodes].reverse().some(currentMenuItemCode => {
+                if(indexedMenuItems.hasOwnProperty(currentMenuItemCode)) {
+                    (anchorRef.current as Anchor).setCurrentActiveLink(indexedMenuItems[currentMenuItemCode]);
+                    return true;
+                }
+            })
+
+            if(!linkFound) (anchorRef.current as Anchor).setCurrentActiveLink("");
+        }
+    }, [currentMenuItemCodes, indexedMenuItems, history.location.pathname]);
 
 
     const onLinkClick = React.useCallback((ev, link) => {
@@ -86,7 +92,7 @@ export function VerticalMenu(props: VerticalMenuProps) {
     }, []);
 
     return (
-        <AppCard small>
+        <AppCard small smallTitle={props.title}>
             {props.isLoading ? (
                 <Skeleton active paragraph={{rows: 3}}/>
             ) : (

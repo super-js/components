@@ -9,8 +9,9 @@
     "lib"
   ],
   "scripts": {
-    "build": "npx rimraf lib/ && npx tsc && npx postcss \"src/**/*.css\" \"src/**/**/*.css\" --base src --dir lib",
-    "development": "npx webpack-dev-server --config webpack.dev.config.js"
+    "build": "npx rimraf lib/ && npx tsc && yarn run css",
+    "development": "npx webpack-dev-server --config webpack.dev.config.js",
+    "css": "npx postcss src/**/*.css --base src --dir lib"
   },
   "devDependencies": {
     "@types/classnames": "^2.2.11",

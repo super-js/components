@@ -1,0 +1,110 @@
+.appTimeline {
+
+    & :global(.ant-timeline-item-label) {
+        width: 115px !important;
+        text-align: left !important;
+    }
+    & :global(.ant-timeline-item-tail) {
+        left: 120px !important
+    }
+    & :global(.ant-timeline-item-head), & :global(.ant-timeline-item-head) {
+        left: 120px !important
+    }
+    & :global(.ant-timeline-item-content) {
+        width: calc(100% - 125px) !important;
+        left: 108px !important;
+    }
+
+    & .newTimelineRecord {
+
+    }
+
+    & .timelineHeader {
+
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        flex-direction: row;
+
+        & :global(div.ant-form-item) {
+            margin-bottom: 0px !important;
+        }
+
+        & .filters {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+
+        }
+
+        & .options {
+            & .perPage {
+                width: 80px !important;
+            }
+        }
+
+    }
+
+
+    & .appTimelineItem {
+
+        padding-bottom: 10px !important;
+
+        & .label {
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+        }
+
+        & .header {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+
+            & > .icons {
+                margin-right: 20px;
+            }
+        }
+
+        & .collapse {
+            & .collapsePanel {
+                & :global(.ant-collapse-header) {
+                    padding: 0 !important;
+
+                    & > :global(span[role="img"]) {
+                        right: 10px !important;
+                        padding: 0 !important;
+                    }
+                }
+
+                & :global(.ant-collapse-content-box) {
+                    margin-bottom: 0 !important;
+                    padding-bottom: 0 !important;
+                }
+
+                & .content {
+
+                    display: flex;
+                    flex-direction: column;
+                    justify-content: flex-start;
+
+                    & > iframe {
+                        width: 100%;
+                        overflow-y: auto;
+                        height: 200px;
+                        border: 0;
+                    }
+
+                    & > .contentFooter {
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: space-between;
+                        align-items: center;
+                    }
+
+                }
+            }
+        }
+    }
+}
