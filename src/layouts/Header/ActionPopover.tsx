@@ -16,16 +16,18 @@ export interface IActionPopoverItem {
 }
 
 export interface ActionPopoverProps {
-    label       : string;
+    label       : string | React.ReactNode;
     history?    : History;
     actions?    : IActionPopoverItem[];
     items?      : IActionPopoverItem[];
+    content?    : React.ReactNode;
 }
 
 export default function ActionPopover(props: ActionPopoverProps) {
 
     const hasActions    = Array.isArray(props.actions) && props.actions.length > 0;
     const hasItems      = Array.isArray(props.items) && props.items.length > 0;
+    const hasContent    = !!props.content;
 
     const [isVisible, setIsVisible] = React.useState(false);
 
@@ -37,6 +39,34 @@ export default function ActionPopover(props: ActionPopoverProps) {
         setIsVisible(false);
     };
 
+    const renderItems = () => {
+        return (
+            <div className={ActionPopoverCss.items}>
+                {props.items.map(item => (
+                    <Button key={item.label} type="link" onClick={() => onClick(item)} className={ActionPopoverCss.item}>
+                        <Icon iconName={item.iconName} />
+                        {item.label.toUpperCase()}
+                    </Button>
+                ))}
+            </div>
+        )
+    }
+
+    const renderContent = () => {
+        return props.content;
+    }
+
+    const renderActions = () => {
+        return (
+            <div className={ActionPopoverCss.actions}>
+                {props.actions.map(action => (
+                    <Button key={action.label} type="primary" onClick={() => onClick(action)} >
+                        {action.label.toUpperCase()}
+                    </Button>
+                ))}
+            </div>
+        )
+    }
 
     return (
         <Popover
@@ -46,26 +76,11 @@ export default function ActionPopover(props: ActionPopoverProps) {
             overlayClassName={ActionPopoverCss.popOverWrapper}
             content={(
                 <div className={ActionPopoverCss.popOver}>
-                    {hasItems ? (
-                        <div className={ActionPopoverCss.items}>
-                            {props.items.map(item => (
-                                <Button key={item.label} type="link" onClick={() => onClick(item)} className={ActionPopoverCss.item}>
-                                    <Icon iconName={item.iconName} />
-                                    {item.label.toUpperCase()}
-                                </Button>
-                            ))}
-                        </div>
-                    ) : null}
+                    {hasContent ? renderContent() : null}
+                    {hasItems && hasContent ? <Divider /> : null}
+                    {hasItems ? renderItems() : null}
                     {hasActions && hasItems ? <Divider /> : null}
-                    {hasActions ? (
-                        <div className={ActionPopoverCss.actions}>
-                            {props.actions.map(action => (
-                                <Button key={action.label} type="primary" onClick={() => onClick(action)} >
-                                    {action.label.toUpperCase()}
-                                </Button>
-                            ))}
-                        </div>
-                    ) : null}
+                    {hasActions ? renderActions() : null}
                 </div>
             )}
             trigger="click"
