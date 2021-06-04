@@ -1,6 +1,6 @@
 import * as React from "react";
-import {Tag, Timeline, Typography, Collapse, Divider, Form, Space, DatePicker, Select} from "antd";
-import moment from "moment";
+import {Tag, Timeline, Typography, Collapse, Divider, Form, Space, DatePicker, Select, Pagination, Input } from "antd";
+import * as moment from "moment";
 
 import AppTimelineCss from "./AppTimeline.css";
 import {AppCard} from "../appcard";
@@ -15,7 +15,8 @@ export type OnContentDetailClick = (timelineItem: ITimelineItem) => any;
 
 export interface ITimelineTag {
     label: string;
-    color?: LiteralUnion<PresetColorType | PresetStatusColorType, string>
+    color?: LiteralUnion<PresetColorType | PresetStatusColorType, string>;
+    width?: string;
 }
 
 export interface ITimelineItem {
@@ -31,10 +32,25 @@ export interface ITimelineItem {
 
 export interface OnTimelineItemsLoadOptions {
     start: number;
-    length: number;
+    noOfRecords: number;
+    fromDate?: string;
+    toDate?: string;
+    fullText?: string;
 }
 
-export type OnTimelineItemsLoad = (options: OnTimelineItemsLoadOptions) => Promise<ITimelineItem[]>;
+export interface ITimelineItemsLoadedResponse {
+    timelineItems: ITimelineItem[];
+    totalNoOfItems: number;
+}
+export type OnTimelineItemsLoad = (options: OnTimelineItemsLoadOptions) => Promise<ITimelineItemsLoadedResponse>;
+
+export type TDateRange = [moment.Moment, moment.Moment];
+export interface IOnFilterChangeOptions {
+    dateRange: TDateRange;
+    noOfRecords: number;
+    fullText: string;
+}
+export type OnFilterChange = (onChange: IOnFilterChangeOptions) => any;
 
 export interface INewTimelineRecordOptions {
     label?: string;
@@ -47,23 +63,35 @@ export interface NoOfRecordsOptions {
     defaultNoOfRecords?: 50 | 100 | 200 | 500;
 }
 
-export interface AppTimelineProps {
+export interface AppTimelineHeaderProps {
+    noOfRecords?: NoOfRecordsOptions;
+    dateFilterLabel?: string;
+    onFilterChange: OnFilterChange;
+}
+
+export interface AppTimelineProps extends Omit<AppTimelineHeaderProps, 'onFilterChange'> {
     onTimelineItemsLoad: OnTimelineItemsLoad;
     newTimelineRecordOptions?: INewTimelineRecordOptions;
     onContentDetailClick?: OnContentDetailClick;
-    noOfRecords?: NoOfRecordsOptions;
+    totalNoOfItems?: number;
 }
 
-export interface AppTimelineLabelProps {
+export interface AppTimelineItemLabelProps {
     timelineItem: ITimelineItem;
 }
 
-export interface AppTimelineHeaderProps extends AppTimelineLabelProps {}
-export interface AppTimelineContentProps extends AppTimelineLabelProps {
+export interface AppTimelineItemHeaderProps extends AppTimelineItemLabelProps {}
+export interface AppTimelineItemContentProps extends AppTimelineItemLabelProps {
     onContentDetailClick?: OnContentDetailClick;
 }
 
-export function AppTimelineItemLabel(props: AppTimelineLabelProps) {
+export interface AppTimelineFooterProps {
+    totalNoOfItems: number;
+    pageSize: number;
+    onPaginationChange: (pageNo: number) => void;
+}
+
+export function AppTimelineItemLabel(props: AppTimelineItemLabelProps) {
 
     const timeStamp = moment(props.timelineItem.timestamp).format('DD/MM/YY HH:mm');
 
@@ -74,7 +102,7 @@ export function AppTimelineItemLabel(props: AppTimelineLabelProps) {
     )
 }
 
-export function AppTimelineItemHeader(props: AppTimelineHeaderProps) {
+export function AppTimelineItemHeader(props: AppTimelineItemHeaderProps) {
 
     const {timelineItem} = props;
     const {title, tags = [], hasFiles} = timelineItem;
@@ -86,7 +114,13 @@ export function AppTimelineItemHeader(props: AppTimelineHeaderProps) {
                 {Array.isArray(tags) && tags.length > 0 ? (
                     <React.Fragment>
                         {tags.map(tag => (
-                            <Tag key={tag.label} color={tag.color}>{tag.label}</Tag>
+                            <Tag
+                                key={tag.label}
+                                color={tag.color}
+                                style={{width: tag.width ? tag.width : ''}}
+                                className={AppTimelineCss.tag}>
+                                {tag.label}
+                            </Tag>
                         ))}
                     </React.Fragment>
                 ) : null}
@@ -99,7 +133,7 @@ export function AppTimelineItemHeader(props: AppTimelineHeaderProps) {
     )
 }
 
-export function AppTimelineItemContent(props: AppTimelineContentProps) {
+export function AppTimelineItemContent(props: AppTimelineItemContentProps) {
 
     const onContentDetailClick = () => {
         if(typeof props.onContentDetailClick === "function") {
@@ -120,11 +154,124 @@ export function AppTimelineItemContent(props: AppTimelineContentProps) {
     )
 }
 
+export function AppTimelineHeader(props: AppTimelineHeaderProps) {
+
+    const [noOfRecords, setNoOfRecords] = React.useState(props?.noOfRecords?.defaultNoOfRecords || 100)
+    const [dateRange, setDateRange] = React.useState([null, null] as TDateRange);
+    const [fullText, setFullText] = React.useState('');
+
+    const fullTextSearchTimeout = React.useMemo(() => ({
+        timeout: null
+    }), []);
+
+    const onDateRangeChange = (_dateRange) => {
+        setDateRange(_dateRange);
+        props.onFilterChange({
+            dateRange: _dateRange,
+            noOfRecords, fullText
+        });
+    }
+
+    const onNoOfRecordsChange = _noOfRecords => {
+        setNoOfRecords(_noOfRecords);
+        props.onFilterChange({
+            dateRange, fullText,
+            noOfRecords: _noOfRecords
+        });
+    }
+
+    const onFullTextSearchChange = ({target}) => {
+        setFullText(target.value);
+        clearTimeout(fullTextSearchTimeout.timeout)
+        fullTextSearchTimeout.timeout = setTimeout(() => {
+            props.onFilterChange({
+                dateRange,
+                noOfRecords,
+                fullText : target.value
+            });
+        }, 1000)
+    }
+
+    return (
+        <div className={AppTimelineCss.timelineHeader}>
+            <table className={AppTimelineCss.filters}>
+                <tr>
+                    <td>
+                        <Typography>{props.dateFilterLabel ? props.dateFilterLabel : "Filter by Date"}</Typography>
+                    </td>
+                    <td>
+                        <DatePicker.RangePicker
+                            value={dateRange as any}
+                            onChange={onDateRangeChange}
+                            format="DD/MM/YYYY"
+                        />
+                    </td>
+                </tr>
+                <tr>
+                    <td>
+                        <Typography>Fulltext search</Typography>
+                    </td>
+                    <td>
+                        <Form.Item>
+                            <Input className={AppTimelineCss.fullTextSearch} value={fullText} onChange={onFullTextSearchChange}/>
+                        </Form.Item>
+                    </td>
+                </tr>
+            </table>
+            <div className={AppTimelineCss.options}>
+                <Form.Item label={props?.noOfRecords?.label || "# per Page"}>
+                    <Select
+                        className={AppTimelineCss.perPage}
+                        value={noOfRecords}
+                        onChange={onNoOfRecordsChange}
+                    >
+                        <Select.Option value={50}>50</Select.Option>
+                        <Select.Option value={100}>100</Select.Option>
+                        <Select.Option value={200}>200</Select.Option>
+                        <Select.Option value={500}>500</Select.Option>
+                        <Select.Option value={1000}>1000</Select.Option>
+                    </Select>
+                </Form.Item>
+            </div>
+        </div>
+    )
+}
+
+export function AppTimelineFooter(props: AppTimelineFooterProps) {
+
+    const [currentPage, setCurrentPage] = React.useState(1);
+
+    const onPageChange = pageNo => {
+        setCurrentPage(pageNo);
+        props.onPaginationChange(pageNo)
+    }
+
+    return (
+        <Pagination
+            current={currentPage}
+            onChange={onPageChange}
+            total={props.totalNoOfItems}
+            showSizeChanger={false}
+            pageSize={props.pageSize}
+            hideOnSinglePage
+        />
+    )
+}
+
 export function AppTimeline(props: AppTimelineProps) {
+
+    const filterOptions = React.useMemo(() => ({
+        fromDate: '',
+        toDate: '',
+        noOfRecords: 100,
+        start: 0,
+        fullText: ''
+    }), [])
 
     const [loading, setLoading] = React.useState(true);
     const [error, setError] = React.useState("");
     const [timelineItems, setTimelineItems] = React.useState([] as ITimelineItem[]);
+    const [totalNoOfItems, setTotalNoOfItems] = React.useState(0);
 
     const loadTimelineItems = async () => {
 
@@ -132,16 +279,30 @@ export function AppTimeline(props: AppTimelineProps) {
 
         try {
             if(typeof props.onTimelineItemsLoad === "function") {
-                const _timelineItems = await props.onTimelineItemsLoad({
-                    start: 0, length: 100
-                });
-                setTimelineItems(_timelineItems);
+                const timelineItemsResponse = await props.onTimelineItemsLoad(filterOptions);
+
+                setTimelineItems(timelineItemsResponse.timelineItems);
+                setTotalNoOfItems(timelineItemsResponse.totalNoOfItems);
             }
         } catch(err) {
             setError("Unable to load the timeline.");
         }
 
         setLoading(false);
+    }
+
+    const onFilterChange = (options: IOnFilterChangeOptions) => {
+        filterOptions.noOfRecords = options.noOfRecords;
+        filterOptions.fromDate = options.dateRange[0]?.format('DD/MM/YYYY') || '';
+        filterOptions.toDate = options.dateRange[1]?.format('DD/MM/YYYY') || '';
+        filterOptions.start = 0;
+        filterOptions.fullText = options.fullText;
+        loadTimelineItems();
+    }
+
+    const onPaginationChange = (pageNo: number) => {
+        filterOptions.start = (pageNo - 1) * filterOptions.noOfRecords;
+        loadTimelineItems();
     }
 
     React.useEffect(() => {
@@ -167,53 +328,51 @@ export function AppTimeline(props: AppTimelineProps) {
                     </Typography.Text>
                 ) : (
                     <div>
-                        <div className={AppTimelineCss.timelineHeader}>
-                            <div className={AppTimelineCss.filters}>
-                                <Form.Item label="Filter by Date">
-                                    <Space>
-                                        <DatePicker.RangePicker />
-                                    </Space>
-                                </Form.Item>
-                            </div>
-                            <div className={AppTimelineCss.options}>
-                                <Form.Item label={props?.noOfRecords?.label || "# of Records"}>
-                                    <Select
-                                        className={AppTimelineCss.perPage}
-                                        defaultValue={props?.noOfRecords?.defaultNoOfRecords || 100}
+                        <AppTimelineHeader
+                            noOfRecords={props.noOfRecords}
+                            dateFilterLabel={props.dateFilterLabel}
+                            onFilterChange={onFilterChange}
+                        />
+                        <div style={{position: 'relative'}}>
+                            <Divider />
+                            {loading ? (
+                                <div className={AppTimelineCss.loading}>
+                                    <Icon iconName="spinner" spin size="4x" />
+                                </div>
+                            ) : null}
+                            <Timeline mode="left">
+                                {timelineItems.map(timelineItem => (
+                                    <Timeline.Item
+                                        className={AppTimelineCss.appTimelineItem}
+                                        key={timelineItem.id}
+                                        label={<AppTimelineItemLabel timelineItem={timelineItem}/>}
+                                        position="left"
+                                        dot={timelineItem.iconName ? <Icon iconName={timelineItem.iconName} spin={timelineItem.spinIcon}/> : undefined}
                                     >
-                                        <Select.Option value={50}>50</Select.Option>
-                                        <Select.Option value={100}>100</Select.Option>
-                                        <Select.Option value={200}>200</Select.Option>
-                                        <Select.Option value={500}>500</Select.Option>
-                                    </Select>
-                                </Form.Item>
-                            </div>
-                        </div>
-                        <Divider />
-                        <Timeline pending={loading} mode="left">
-                            {timelineItems.map(timelineItem => (
-                                <Timeline.Item
-                                    className={AppTimelineCss.appTimelineItem}
-                                    key={timelineItem.id}
-                                    label={<AppTimelineItemLabel timelineItem={timelineItem}/>}
-                                    position="left"
-                                    dot={timelineItem.iconName ? <Icon iconName={timelineItem.iconName} spin={timelineItem.spinIcon}/> : undefined}
-                                >
-                                    <Collapse ghost expandIconPosition="right" className={AppTimelineCss.collapse}>
-                                        <Collapse.Panel
-                                            key={1}
-                                            header={<AppTimelineItemHeader timelineItem={timelineItem} />}
-                                            className={AppTimelineCss.collapsePanel}
-                                        >
-                                            <AppTimelineItemContent timelineItem={timelineItem} onContentDetailClick={props.onContentDetailClick}/>
-                                        </Collapse.Panel>
-                                    </Collapse>
-                                </Timeline.Item>
+                                        <Collapse ghost expandIconPosition="right" className={AppTimelineCss.collapse}>
+                                            <Collapse.Panel
+                                                key={1}
+                                                header={<AppTimelineItemHeader timelineItem={timelineItem} />}
+                                                className={AppTimelineCss.collapsePanel}
+                                            >
+                                                <AppTimelineItemContent
+                                                    timelineItem={timelineItem}
+                                                    onContentDetailClick={props.onContentDetailClick}
+                                                />
+                                            </Collapse.Panel>
+                                        </Collapse>
+                                    </Timeline.Item>
 
-                            ))}
-                        </Timeline>
+                                ))}
+                            </Timeline>
+                        </div>
                     </div>
                 )}
+                <AppTimelineFooter
+                    totalNoOfItems={props.totalNoOfItems || totalNoOfItems}
+                    pageSize={filterOptions.noOfRecords}
+                    onPaginationChange={onPaginationChange}
+                />
             </AppCard>
         </div>
 

@@ -13,6 +13,19 @@
     & :global(.ant-timeline-item-content) {
         width: calc(100% - 125px) !important;
         left: 108px !important;
+        min-height: 0 !important;
+    }
+
+    & .loading {
+        height: 100%;
+        width: 100%;
+        left: 0;
+        top: 0;
+        opacity: .7;
+        position: absolute;
+        background: #fff;
+        z-index: 1;
+        text-align: center;
     }
 
     & .newTimelineRecord {
@@ -23,18 +36,23 @@
 
         display: flex;
         justify-content: space-between;
-        align-items: flex-start;
+        align-items: center;
         flex-direction: row;
 
         & :global(div.ant-form-item) {
             margin-bottom: 0px !important;
         }
 
-        & .filters {
-            display: flex;
-            flex-direction: column;
-            justify-content: flex-start;
+        & table.filters {
+            & > tr {
+                & > td:nth-child(2) {
+                    padding-left: 20px;
 
+                    & > .fullTextSearch {
+                        width: 100% !important;
+                    }
+                }
+            }
         }
 
         & .options {
@@ -64,6 +82,10 @@
 
             & > .icons {
                 margin-right: 20px;
+
+                & .tag {
+                    text-align: center !important;
+                }
             }
         }
 
