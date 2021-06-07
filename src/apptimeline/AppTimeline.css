@@ -16,6 +16,11 @@
         min-height: 0 !important;
     }
 
+    & .appTimelineBody {
+        position: relative;
+        min-height: 50px;
+    }
+
     & .loading {
         height: 100%;
         width: 100%;
@@ -105,18 +110,49 @@
                     padding-bottom: 0 !important;
                 }
 
-                & .content {
+                & .detail {
 
                     display: flex;
                     flex-direction: column;
                     justify-content: flex-start;
 
-                    & > iframe {
-                        width: 100%;
-                        overflow-y: auto;
+                    & > .detailBody {
+
+                        display: flex;
+                        flex-direction: row;
+                        justify-content: flex-start;
+                        align-items: start;
+
                         height: 200px;
-                        border: 0;
+                        max-height: 200px;
+
+                        & > iframe {
+                            overflow-y: auto;
+                            height: 100%;
+                            border: 0;
+                            flex-grow: 2;
+                            border-right: 1px solid #ddd;
+                            margin-right: 10px;
+                        }
+
+                        & .attribute {
+                            display: flex;
+                            flex-direction: row;
+                            align-items: center;
+                            justify-content: flex-start;
+                            width: 400px;
+
+                            & > span:first-child {
+                                width: 50%;
+                            }
+
+                            & > span:nth-child(2) {
+                                width: 50%;
+                            }
+                        }
                     }
+
+
 
                     & > .contentFooter {
                         display: flex;

@@ -1,5 +1,17 @@
 import * as React from "react";
-import {Tag, Timeline, Typography, Collapse, Divider, Form, Space, DatePicker, Select, Pagination, Input } from "antd";
+import {
+    Tag,
+    Timeline,
+    Typography,
+    Collapse,
+    Divider,
+    Form,
+    DatePicker,
+    Select,
+    Pagination,
+    Input,
+    Skeleton
+} from "antd";
 import * as moment from "moment";
 
 import AppTimelineCss from "./AppTimeline.css";
@@ -10,8 +22,20 @@ import {AppButton} from "../appbutton";
 
 import type {LiteralUnion} from "antd/lib/_util/type";
 import type {PresetColorType, PresetStatusColorType} from "antd/lib/_util/colors";
+import {AppAlert} from "../appalert";
+import {isDate, dateTimeToString} from "../utils";
 
-export type OnContentDetailClick = (timelineItem: ITimelineItem) => any;
+export type OnOpenExternalDetailClick = (timelineItem: ITimelineItem) => void;
+
+export interface ITimelineDetailAttribute {
+    name: string;
+    value: any;
+}
+export interface ITimelineItemDetail {
+    attributes?: ITimelineDetailAttribute[];
+    content?: string;
+}
+export type LoadTimelineItemDetail = (timelineItem: ITimelineItem) => Promise<ITimelineItemDetail>
 
 export interface ITimelineTag {
     label: string;
@@ -23,7 +47,6 @@ export interface ITimelineItem {
     id: any;
     title: string;
     timestamp: Date;
-    content?: string;
     iconName?: IconName;
     tags?: ITimelineTag[];
     hasFiles?: boolean;
@@ -67,13 +90,15 @@ export interface AppTimelineHeaderProps {
     noOfRecords?: NoOfRecordsOptions;
     dateFilterLabel?: string;
     onFilterChange: OnFilterChange;
+    loading: boolean;
 }
 
-export interface AppTimelineProps extends Omit<AppTimelineHeaderProps, 'onFilterChange'> {
+export interface AppTimelineProps extends Omit<AppTimelineHeaderProps, 'onFilterChange' | 'loading'> {
     onTimelineItemsLoad: OnTimelineItemsLoad;
     newTimelineRecordOptions?: INewTimelineRecordOptions;
-    onContentDetailClick?: OnContentDetailClick;
+    onOpenExternalDetailClick?: OnOpenExternalDetailClick;
     totalNoOfItems?: number;
+    loadTimelineItemDetail?: LoadTimelineItemDetail;
 }
 
 export interface AppTimelineItemLabelProps {
@@ -82,13 +107,15 @@ export interface AppTimelineItemLabelProps {
 
 export interface AppTimelineItemHeaderProps extends AppTimelineItemLabelProps {}
 export interface AppTimelineItemContentProps extends AppTimelineItemLabelProps {
-    onContentDetailClick?: OnContentDetailClick;
+    onOpenExternalDetailClick?: OnOpenExternalDetailClick;
+    loadTimelineItemDetail?: LoadTimelineItemDetail;
 }
 
 export interface AppTimelineFooterProps {
     totalNoOfItems: number;
     pageSize: number;
     onPaginationChange: (pageNo: number) => void;
+    loading: boolean;
 }
 
 export function AppTimelineItemLabel(props: AppTimelineItemLabelProps) {
@@ -135,21 +162,80 @@ export function AppTimelineItemHeader(props: AppTimelineItemHeaderProps) {
 
 export function AppTimelineItemContent(props: AppTimelineItemContentProps) {
 
+    const [error, setError] = React.useState("");
+    const [attributes, setAttributes] = React.useState([]);
+    const [content, setContent] = React.useState("");
+    const [loading, setLoading] = React.useState(false);
+
+    const hasDetail = (Array.isArray(attributes) && attributes.length > 0) || content;
+
     const onContentDetailClick = () => {
-        if(typeof props.onContentDetailClick === "function") {
-            props.onContentDetailClick(props.timelineItem);
+        if(typeof props.onOpenExternalDetailClick === "function") {
+            props.onOpenExternalDetailClick(props.timelineItem);
         }
     }
 
+    React.useEffect(() => {
+        if(typeof props.loadTimelineItemDetail === "function") {
+            (async () => {
+
+                setLoading(true);
+
+                try {
+                    const {content, attributes} = await props.loadTimelineItemDetail(props.timelineItem);
+                    setContent(content);
+                    setAttributes(attributes.map(attribute => {
+                        if(isDate(attribute.value)) return {
+                            ...attribute,
+                            value : dateTimeToString(attribute.value)
+                        };
+
+                        return attribute
+                    }));
+                } catch (err) {
+                    setError(`Unable to load the detail - ${err.message}`);
+                }
+
+                setLoading(false)
+            })()
+        }
+    }, []);
+
+    if(loading) return <Skeleton active paragraph={{rows: 5}} />;
+
     return (
-        <div className={AppTimelineCss.content}>
-            <iframe src={`data:text/html;charset=UTF-8,${props.timelineItem.content}`} />
-            <Divider />
-            <div className={AppTimelineCss.contentFooter}>
-                {typeof props.onContentDetailClick === "function" ? (
-                    <AppButton link onClick={onContentDetailClick} iconName="external-link" label="Open Detail"/>
-                ) : <div />}
-            </div>
+        <div className={AppTimelineCss.detail}>
+            {error ? (
+                <AppAlert message={error} type="error" />
+            ) : (
+                <>
+                    {hasDetail ? (
+                        <>
+                            <div className={AppTimelineCss.detailBody}>
+                                {content ? (
+                                    <iframe src={`data:text/html;charset=UTF-8,${content}`} />
+                                ) : null}
+                                {Array.isArray(attributes) && attributes.length > 0 ? (
+                                    <div>
+                                        {attributes.map(attribute => (
+                                            <div className={AppTimelineCss.attribute}>
+                                                <Typography.Text strong>{attribute.name}</Typography.Text>
+                                                <Typography.Text type="secondary">{attribute.value}</Typography.Text>
+                                            </div>
+                                        ))}
+                                    </div>
+                                ) : null}
+                            </div>
+                            <Divider />
+                        </>
+                    ) : null}
+                    <div className={AppTimelineCss.contentFooter}>
+                        {typeof props.onOpenExternalDetailClick === "function" ? (
+                            <AppButton link onClick={onContentDetailClick} iconName="external-link" label="Open Detail"/>
+                        ) : <div />}
+                    </div>
+                </>
+           )}
         </div>
     )
 }
@@ -204,6 +290,7 @@ export function AppTimelineHeader(props: AppTimelineHeaderProps) {
                             value={dateRange as any}
                             onChange={onDateRangeChange}
                             format="DD/MM/YYYY"
+                            disabled={props.loading}
                         />
                     </td>
                 </tr>
@@ -213,7 +300,12 @@ export function AppTimelineHeader(props: AppTimelineHeaderProps) {
                     </td>
                     <td>
                         <Form.Item>
-                            <Input className={AppTimelineCss.fullTextSearch} value={fullText} onChange={onFullTextSearchChange}/>
+                            <Input
+                                className={AppTimelineCss.fullTextSearch}
+                                value={fullText}
+                                onChange={onFullTextSearchChange}
+                                disabled={props.loading}
+                            />
                         </Form.Item>
                     </td>
                 </tr>
@@ -224,6 +316,7 @@ export function AppTimelineHeader(props: AppTimelineHeaderProps) {
                         className={AppTimelineCss.perPage}
                         value={noOfRecords}
                         onChange={onNoOfRecordsChange}
+                        disabled={props.loading}
                     >
                         <Select.Option value={50}>50</Select.Option>
                         <Select.Option value={100}>100</Select.Option>
@@ -254,6 +347,7 @@ export function AppTimelineFooter(props: AppTimelineFooterProps) {
             showSizeChanger={false}
             pageSize={props.pageSize}
             hideOnSinglePage
+            disabled={props.loading}
         />
     )
 }
@@ -332,8 +426,9 @@ export function AppTimeline(props: AppTimelineProps) {
                             noOfRecords={props.noOfRecords}
                             dateFilterLabel={props.dateFilterLabel}
                             onFilterChange={onFilterChange}
+                            loading={loading}
                         />
-                        <div style={{position: 'relative'}}>
+                        <div style={{position: 'relative'}} className={AppTimelineCss.appTimelineBody}>
                             <Divider />
                             {loading ? (
                                 <div className={AppTimelineCss.loading}>
@@ -357,7 +452,8 @@ export function AppTimeline(props: AppTimelineProps) {
                                             >
                                                 <AppTimelineItemContent
                                                     timelineItem={timelineItem}
-                                                    onContentDetailClick={props.onContentDetailClick}
+                                                    onOpenExternalDetailClick={props.onOpenExternalDetailClick}
+                                                    loadTimelineItemDetail={props.loadTimelineItemDetail}
                                                 />
                                             </Collapse.Panel>
                                         </Collapse>
@@ -372,6 +468,7 @@ export function AppTimeline(props: AppTimelineProps) {
                     totalNoOfItems={props.totalNoOfItems || totalNoOfItems}
                     pageSize={filterOptions.noOfRecords}
                     onPaginationChange={onPaginationChange}
+                    loading={loading}
                 />
             </AppCard>
         </div>
