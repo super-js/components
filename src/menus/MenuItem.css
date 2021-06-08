@@ -1,9 +1,20 @@
 li.menuItem {
     border-bottom: 1px solid transparent !important;
+    min-width: 120px !important;
+    text-align: center !important;
 
     &:global(.ant-menu-item-selected), &:global(.ant-menu-item-active) {
         border-bottom: 1px solid color(var(--link-color) blackness(40%)) !important;
         background: inherit !important;
+
+        &:after {
+            border-bottom: 0 !important;
+        }
+
+    }
+
+    &:after {
+        border-bottom: 0 !important;
     }
 
     & > .content {

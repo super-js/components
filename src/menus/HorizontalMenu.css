@@ -1,6 +1,7 @@
 ul.horizontalMenu {
     background: none;
     width:100%;
+    justify-content: space-evenly !important;
 
     & li.subMenu {
         color : color(var(--link-color) blackness(40%)) !important;
