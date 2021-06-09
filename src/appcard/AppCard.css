@@ -7,27 +7,12 @@
     }
 
 
-    & > :global(.ant-card-head) {
-        background: var(--primary-background--color);
-    }
 
     &.small {
         & > :global(.ant-card-body) {
             padding: 8px !important;
         }
 
-    }
-
-    &.appCardError > :global(.ant-card-head) {
-        background: var(--error-background-color)
-    }
-
-    &.appCardSuccess > :global(.ant-card-head) {
-        background: var(--success-background-color)
-    }
-
-    &.appCardWarning > :global(.ant-card-head) {
-        background: var(--warning-background-color)
     }
 
     &.fullHeight {
@@ -59,18 +44,6 @@
         & > h4 {
 
             margin-bottom: 0;
-
-            &.error {
-                color: var(--error-color)
-            }
-
-            &.success {
-                color: var(--success-color)
-            }
-
-            &.warning {
-                color: var(--warning-color)
-            }
 
         }
     }

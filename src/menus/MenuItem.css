@@ -4,17 +4,7 @@ li.menuItem {
     text-align: center !important;
 
     &:global(.ant-menu-item-selected), &:global(.ant-menu-item-active) {
-        border-bottom: 1px solid color(var(--link-color) blackness(40%)) !important;
-        background: inherit !important;
 
-        &:after {
-            border-bottom: 0 !important;
-        }
-
-    }
-
-    &:after {
-        border-bottom: 0 !important;
     }
 
     & > .content {
@@ -25,7 +15,7 @@ li.menuItem {
         align-items: center;
 
         & > svg, & > span {
-            color : color(var(--link-color) blackness(60%)) !important;
+
         }
     }
 

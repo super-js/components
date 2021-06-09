@@ -3,17 +3,14 @@
     &.info {}
     &.warning {
         border: 1px solid;
-        border-color: var(--warning-color);
-        background: var(--warning-background-color);
+
     }
     &.error {
         border: 1px solid;
-        border-color: var(--error-color);
-        background: var(--error-background-color);
+
     }
     &.success {
         border: 1px solid;
-        border-color: var(--success-color);
-        background: var(--success-background-color);
+
     }
 }

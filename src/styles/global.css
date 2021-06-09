@@ -1,8 +1,0 @@
-a {
-    color: var(--link-color) !important;
-    cursor: pointer;
-
-    &:hover {
-        color: var(--link-color-hover) !important;
-    }
-}

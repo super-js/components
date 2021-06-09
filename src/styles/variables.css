@@ -1,24 +1,3 @@
 :root {
-
-    --fa-primary-color: #389e0d;
-    --fa-secondary-color: #fadb14;
-    --fa-secondary-opacity: .9;
-
-    --error-color: #f5222d;
-    --error-background-color: rgba(245,34,45,.1);
-    --warning-color: #faad14;
-    --warning-background-color: rgba(250,173,20,.1);
-    --success-color: #52c41a;
-    --success-background-color: rgba(82,196,26,.1);
-
-    --link-color: rgb(145, 114, 0);
-    --link-color-hover: rgb(201, 166, 6);
-
-    --button-border-color: var(--link-color);
-    --button-text-color: var(--link-color);
-
-    --primary-background--color: rgb(249, 253, 235);
-
     --max-width: 1480px;
-
 }

@@ -9,6 +9,7 @@
       "outDir"                   : "./lib",
       "allowSyntheticDefaultImports": true,
       "declaration"              : true,
+      "allowJs": true,
       "plugins"                        : [
          {
             "name": "typescript-plugin-css-modules",

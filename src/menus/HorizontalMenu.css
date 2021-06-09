@@ -4,10 +4,9 @@ ul.horizontalMenu {
     justify-content: space-evenly !important;
 
     & li.subMenu {
-        color : color(var(--link-color) blackness(40%)) !important;
 
         &:global(.ant-menu-submenu-active), &:global(.ant-menu-submenu-selected){
-            border-bottom: 1px solid color(var(--link-color) blackness(40%)) !important;
+
         }
     }
 }

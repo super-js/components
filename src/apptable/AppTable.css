@@ -29,14 +29,8 @@ div.table {
             & > tr {
                 & > th.column {
                     padding: 3px 5px;
-                    background: var(--primary-background--color);
 
                     & > :global(div.ant-table-column-sorters-with-tooltip) {
-
-                        &:global(.ant-tooltip-open) {
-                            background: var(--primary-background--color);
-                        }
-
                         & > :global(div.ant-table-column-sorters) {
                             padding: 0;
                         }

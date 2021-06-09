@@ -3,11 +3,9 @@
 
     &.danger {
         & :global(.fa-primary) {
-            fill: color(var(--error-color) lightness(+40%)) !important;
         }
 
         & :global(.fa-secondary) {
-            fill: var(--error-color) !important;
         }
     }
     &.clickable {
