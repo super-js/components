@@ -2,7 +2,6 @@ import * as React from "react";
 import type {History} from "history";
 import { Table, Divider, Select, Typography} from "antd";
 import {IconName} from "@fortawesome/fontawesome-svg-core";
-import map from "lodash-es/map"
 
 import {AppCard} from "../appcard";
 
@@ -23,14 +22,14 @@ export interface IColumn<R> {
     width?: string;
 }
 
-export interface ITableAction {
+export interface ITableAction<R> {
     to?: string;
-    onClick?: () => void;
+    onClick?: (record?: R) => void;
     label: string;
     iconName?: IconName;
 }
 
-export interface ITableColumnAction<R> extends Omit<ITableAction, 'to' | 'label'> {
+export interface ITableColumnAction<R> extends Omit<ITableAction<R>, 'to' | 'label'> {
     to?: (record: R) => string;
     label?: string;
     shouldRender?: (record: R) => boolean;
@@ -47,7 +46,7 @@ export interface AppTableProps<R> {
     onError?: (error: Error) => void;
     keyPropertyName: string;
     history?: History;
-    actions?: ITableAction[];
+    actions?: ITableAction<R>[];
     columnActions?: ITableColumnAction<R>[];
     loading?: boolean;
 }
@@ -57,6 +56,7 @@ export interface AppTableState<R> {
     data:R[];
     hasError?: boolean;
     pageSize: number;
+    expandedRowsKeys: React.Key[];
 }
 
 interface IGetColumnRendererOptions {
@@ -79,7 +79,7 @@ function getColumnRenderer<R>(column: IColumn<R>, options: IGetColumnRendererOpt
             const pathName = column.linkTo(record);
 
             return pathName && typeof pathName === "string" ? (
-                <a onClick={() => options.history.push({
+                <a key={text} onClick={() => options.history.push({
                     pathname: column.linkTo(record),
                     state: record
                 })}>
@@ -108,7 +108,7 @@ function getActionColumnRenderer<R>(actions: ITableColumnAction<R>[], {history})
                 {actions
                     .filter(action => typeof action.shouldRender !== "function" || action.shouldRender(record))
                     .map(action => (
-                        <a onClick={() => onClick(action)}>
+                        <a key={action.label || action.iconName} onClick={() => onClick(action)}>
                             {action.iconName ? <Icon iconName={action.iconName} /> : null}
                             {action.label ? <span>{action.label}</span> : null}
                         </a>
@@ -136,10 +136,11 @@ const AppTableConfig = (props: AppTableConfigProps) => (
 export class AppTable<R extends AppTableRecordType | object = any> extends React.Component<AppTableProps<R>, AppTableState<R>>{
 
     state = {
-        loading     : this.props.loading,
-        data        : Array.isArray(this.props.data) ? this.props.data : [],
-        hasError    : false,
-        pageSize    : 50
+        loading             : this.props.loading,
+        data                : Array.isArray(this.props.data) ? this.props.data : [],
+        hasError            : false,
+        pageSize            : 50,
+        expandedRowsKeys    : [],
     };
 
     static expandIcon(props) {
@@ -211,7 +212,7 @@ export class AppTable<R extends AppTableRecordType | object = any> extends React
 
     onPageSizeChange = (pageSize) => this.setState({pageSize});
 
-    _onActionClick = (action: ITableAction) => {
+    _onActionClick = (action: ITableAction<R>) => {
         if(typeof action.onClick === "function") {
             action.onClick();
         } else if(action.to) {
@@ -223,9 +224,9 @@ export class AppTable<R extends AppTableRecordType | object = any> extends React
 
         const {
             columns, history, actions, keyPropertyName, fullHeight, title, hidePagination, hideRowsFilter,
-            expandAll, columnActions = []
+            columnActions = []
         } = this.props;
-        const {loading, data, pageSize} = this.state;
+        const {loading, data, pageSize, expandedRowsKeys} = this.state;
 
         const hasActions = Array.isArray(actions) && actions.length > 0;
 
@@ -266,7 +267,6 @@ export class AppTable<R extends AppTableRecordType | object = any> extends React
                             pageSize
                         } : false}
                         expandable={{
-                            defaultExpandAllRows: expandAll,
                             expandIcon: AppTable.expandIcon
                         }}
                     >
